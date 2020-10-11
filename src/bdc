@@ -1,0 +1,13 @@
+#!/bin/sh
+
+#-------------------------------------------------------------------------------
+# Copyright 2020 Dominik Salvet
+# github.com/dominiksalvet/bdc
+#-------------------------------------------------------------------------------
+# DESCRIPTION:
+#   This is a simple binary-decimal converter intended for a terminal use.
+# PARAMETERS:
+#   All given arguments are processed as BDC help describes.
+#-------------------------------------------------------------------------------
+
+exit 0
