@@ -19,6 +19,7 @@
 main() {
     init_constants &&
     init_strings &&
+    init_opts &&
     process_args "$@"
 }
 
@@ -28,7 +29,15 @@ init_constants() {
 
 init_strings() {
     readonly HELP_MESSAGE='USAGE:
-  bdc help | about'
+  bdc [OPTION...] NUMBER...
+  bdc help | about
+
+OPTION:
+  -b        binary input
+  -d        decimal input
+  -s        signed input
+  -u        unsigned input
+  -w WIDTH  output width'
 
     readonly ABOUT_MESSAGE="BDC $VERSION
 Sleek binary-decimal converter.
@@ -37,21 +46,67 @@ Copyright 2020 Dominik Salvet
 github.com/dominiksalvet/bdc"
 }
 
+init_opts() {
+    force_input_radix=false
+    binary_input= # either binary or decimal
+    force_input_sign=false
+    signed_input= # either signed or unsigned
+    force_output_width=false
+    output_width=
+}
+
 #-------------------------------------------------------------------------------
 # ARGUMENT PROCESSING
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
 #   $@ - BDC arguments
-process_args() {
+process_args() (
+    case "$1" in
+        help) echo "$HELP_MESSAGE" ;;
+        about) echo "$ABOUT_MESSAGE" ;;
+        *)  process_opts "$@" &&
+            shift "$((OPTIND - 1))" && # shift to numbers
+            convert_nums "$@" ;;
+    esac
+)
+
+process_opts() {
+    while getopts :bdsuw: _opt; do
+        case "$_opt" in
+            b) force_input_radix=true; binary_input=true ;;
+            d) force_input_radix=true; binary_input=false ;;
+            s) force_input_sign=true; signed_input=true ;;
+            u) force_input_sign=true; signed_input=false ;;
+
+            w)  if ! [ "$OPTARG" -gt 0 ] 2>/dev/null; then
+                    echo "invalid output width $OPTARG" >&2; return 1
+                fi
+                force_output_width=true
+                output_width="$OPTARG" ;;
+
+            :) echo "option -$OPTARG requires an argument" >&2; return 1 ;;
+            \?) echo "invalid option -$OPTARG" >&2; return 1 ;;
+        esac
+    done
+}
+
+#-------------------------------------------------------------------------------
+# NUMBER CONVERSION
+#-------------------------------------------------------------------------------
+
+convert_nums() {
     if [ "$#" -eq 0 ]; then
         echo 'no number provided' >&2; return 1
     fi &&
 
-    case "$1" in
-        help) echo "$HELP_MESSAGE" ;;
-        about) echo "$ABOUT_MESSAGE" ;;
-    esac
+    echo "force_input_radix = $force_input_radix" &&
+    echo "binary_input = $binary_input" &&
+    echo "force_input_sign = $force_input_sign" &&
+    echo "signed_input = $signed_input" &&
+    echo "force_output_width = $force_output_width" &&
+    echo "output_width = $output_width" &&
+    echo "numbers = $*"
 }
 
 #-------------------------------------------------------------------------------

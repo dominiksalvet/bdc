@@ -11,6 +11,7 @@ The changes not yet present in any release are listed in this section.
 ### Added
 
 * The support for `help` and `about` has been added.
+* Added `-b`, `-d`, `-s`, `-u` and `-w` options.
 
 ## 0.1.0 (2020-10-11)
 
