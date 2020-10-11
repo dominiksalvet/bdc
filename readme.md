@@ -10,7 +10,11 @@ Long description.
 
 ## Install
 
-Install content.
+BDC supports [GitPack](https://github.com/dominiksalvet/gitpack). Local installation/update:
+
+```sh
+gitpack install github.com/dominiksalvet/bdc
+```
 
 ## Usage
 
