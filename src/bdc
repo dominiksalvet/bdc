@@ -10,4 +10,52 @@
 #   All given arguments are processed as BDC help describes.
 #-------------------------------------------------------------------------------
 
-exit 0
+#-------------------------------------------------------------------------------
+# INITIALIZATION
+#-------------------------------------------------------------------------------
+
+# PARAMETERS:
+#   $@ - BDC arguments
+main() {
+    init_constants &&
+    init_strings &&
+    process_args "$@"
+}
+
+init_constants() {
+    readonly VERSION=0.1.0 # the current BDC version
+}
+
+init_strings() {
+    readonly HELP_MESSAGE='USAGE:
+  bdc help | about'
+
+    readonly ABOUT_MESSAGE="BDC $VERSION
+Sleek binary-decimal converter.
+
+Copyright 2020 Dominik Salvet
+github.com/dominiksalvet/bdc"
+}
+
+#-------------------------------------------------------------------------------
+# ARGUMENT PROCESSING
+#-------------------------------------------------------------------------------
+
+# PARAMETERS:
+#   $@ - BDC arguments
+process_args() {
+    if [ "$#" -eq 0 ]; then
+        echo 'no number provided' >&2; return 1
+    fi &&
+
+    case "$1" in
+        help) echo "$HELP_MESSAGE" ;;
+        about) echo "$ABOUT_MESSAGE" ;;
+    esac
+}
+
+#-------------------------------------------------------------------------------
+# CALL MAIN
+#-------------------------------------------------------------------------------
+
+main "$@"
