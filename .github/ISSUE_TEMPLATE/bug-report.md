@@ -1,13 +1,13 @@
 ---
 name: Bug report
-about: Create a report to improve <project>
+about: Create a report to improve BDC
 title: ''
 labels: bug
-assignees: <username>
+assignees: dominiksalvet
 ---
 
 **Environment**
-State \<project\> version and OS information.
+State BDC version and OS information.
 
 **Description**
 Describe the bug.

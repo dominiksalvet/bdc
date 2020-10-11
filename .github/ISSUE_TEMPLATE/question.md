@@ -1,9 +1,9 @@
 ---
 name: Question
-about: Ask a question about <project>
+about: Ask a question about BDC
 title: <question>
 labels: question
-assignees: <username>
+assignees: dominiksalvet
 ---
 
 **Additional context**
