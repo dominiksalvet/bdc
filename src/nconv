@@ -72,6 +72,8 @@ process_args() (
     esac
 )
 
+# PARAMETERS:
+#   $@ - nconv options
 process_opts() {
     while getopts :bdhsuBDHW: _opt; do
         case "$_opt" in
