@@ -2,12 +2,12 @@
 
 #-------------------------------------------------------------------------------
 # Copyright 2020 Dominik Salvet
-# github.com/dominiksalvet/bdc
+# github.com/dominiksalvet/nconv
 #-------------------------------------------------------------------------------
 # DESCRIPTION:
 #   This is a simple binary-decimal converter intended for a terminal use.
 # PARAMETERS:
-#   All given arguments are processed as BDC help describes.
+#   All given arguments are processed as nconv help describes.
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
-#   $@ - BDC arguments
+#   $@ - nconv arguments
 main() {
     init_constants &&
     init_strings &&
@@ -24,13 +24,13 @@ main() {
 }
 
 init_constants() {
-    readonly VERSION=0.1.0 # the current BDC version
+    readonly VERSION=0.1.0 # the current nconv version
 }
 
 init_strings() {
     readonly HELP_MESSAGE='USAGE:
-  bdc [OPTION...] NUMBER...
-  bdc help | about
+  nconv [OPTION...] NUMBER...
+  nconv help | about
 
 OPTION:
   -b        binary input
@@ -39,11 +39,11 @@ OPTION:
   -u        unsigned input
   -w WIDTH  output width'
 
-    readonly ABOUT_MESSAGE="BDC $VERSION
-Sleek binary-decimal converter.
+    readonly ABOUT_MESSAGE="nconv $VERSION
+Binary, decimal and hexadecimal converter.
 
 Copyright 2020 Dominik Salvet
-github.com/dominiksalvet/bdc"
+github.com/dominiksalvet/nconv"
 }
 
 init_opts() {
@@ -60,7 +60,7 @@ init_opts() {
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
-#   $@ - BDC arguments
+#   $@ - nconv arguments
 process_args() (
     case "$1" in
         help) echo "$HELP_MESSAGE" ;;

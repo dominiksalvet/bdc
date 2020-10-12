@@ -1,1 +1,1 @@
-src/bdc "$HOME"/.local/bin
+src/nconv "$HOME"/.local/bin

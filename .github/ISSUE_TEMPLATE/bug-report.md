@@ -1,13 +1,13 @@
 ---
 name: Bug report
-about: Create a report to improve BDC
+about: Create a report to improve nconv
 title: ''
 labels: bug
 assignees: dominiksalvet
 ---
 
 **Environment**
-State BDC version and OS information.
+State nconv version and OS information.
 
 **Description**
 Describe the bug.

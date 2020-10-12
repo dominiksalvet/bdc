@@ -1,6 +1,6 @@
 ---
 name: Question
-about: Ask a question about BDC
+about: Ask a question about nconv
 title: <question>
 labels: question
 assignees: dominiksalvet

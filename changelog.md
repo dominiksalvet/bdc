@@ -1,8 +1,8 @@
 # Changelog
 
-All notable changes to BDC will be documented in this file.
+All notable changes to nconv will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and BDC adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and nconv adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
@@ -12,6 +12,10 @@ The changes not yet present in any release are listed in this section.
 
 * The support for `help` and `about` has been added.
 * Added `-b`, `-d`, `-s`, `-u` and `-w` options.
+
+### Changed
+
+* BDC has been renamed to nconv.
 
 ## 0.1.0 (2020-10-11)
 

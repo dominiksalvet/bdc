@@ -1,21 +1,21 @@
-# BDC
+# nconv
 
-[![CI status](https://github.com/dominiksalvet/bdc/workflows/CI/badge.svg)](https://github.com/dominiksalvet/bdc/actions)
+[![CI status](https://github.com/dominiksalvet/nconv/workflows/CI/badge.svg)](https://github.com/dominiksalvet/nconv/actions)
 [![GitPack](https://img.shields.io/badge/-GitPack-571997)](https://github.com/dominiksalvet/gitpack)
 [![POSIX Shell](https://img.shields.io/badge/POSIX-Shell-111111)](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html)
 
-> Sleek binary-decimal converter.
+> Binary, decimal and hexadecimal converter.
 
-BDC (binary-decimal converter) is a simple and intuitive tool for converting binary numbers to decimal numbers and vice versa. It was designed as a portable Shell script, so that it can be run almost everywhere.
+Nconv (number converter) is a simple and intuitive tool for converting among binary, decimal and hexadecimal numbers. It was designed as a portable Shell script, so that it can be run almost everywhere.
 
-BDC is also smart. In most cases, you don't need to state which conversion you are interested in. Just type the number and BDC converts it based on quick input analysis. How convenient.
+Nconv is also smart. In most cases, you don't need to state which conversion you are interested in. Just type a number and nconv will perform the conversion automatically. How convenient.
 
 ## Install
 
-BDC supports [GitPack](https://github.com/dominiksalvet/gitpack). Local installation/update:
+Nconv supports [GitPack](https://github.com/dominiksalvet/gitpack). Local installation/update:
 
 ```sh
-gitpack install github.com/dominiksalvet/bdc
+gitpack install github.com/dominiksalvet/nconv
 ```
 
 ## Usage

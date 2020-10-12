@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for BDC
+about: Suggest an idea for nconv
 title: ''
 labels: enhancement
 assignees: dominiksalvet
