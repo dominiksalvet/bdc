@@ -6,7 +6,7 @@
 
 > Sleek binary-decimal converter.
 
-BDC (binary-decimal converter) is a simple and intuitive tool for converting binary numbers to decimal numbers and vice versa. It was designed as a very portable terminal script, so that it can be run almost everywhere.
+BDC (binary-decimal converter) is a simple and intuitive tool for converting binary numbers to decimal numbers and vice versa. It was designed as a portable Shell script, so that it can be run almost everywhere.
 
 BDC is also smart. In most cases, you don't need to state, which conversion you are interested in. Just type the number and BDC converts it based on quick input analysis. How convenient.
 
