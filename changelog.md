@@ -11,7 +11,7 @@ The changes not yet present in any release are listed in this section.
 ### Added
 
 * The support for `help` and `about` has been added.
-* Added `-b`, `-d`, `-s`, `-u` and `-w` options.
+* Added constraining options for input (`bdhsu`) and output (`BDHW`).
 
 ### Changed
 

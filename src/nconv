@@ -33,11 +33,10 @@ init_strings() {
   nconv help | about
 
 OPTION:
-  -b        binary input
-  -d        decimal input
-  -s        signed input
-  -u        unsigned input
-  -w WIDTH  output width'
+  -b/-d/-h  binary/decimal/hexadecimal input
+  -s/-u     signed/unsigned input
+  -B/-D/-H  binary/decimal/hexadecimal output
+  -W WIDTH  output width'
 
     readonly ABOUT_MESSAGE="nconv $VERSION
 Binary, decimal and hexadecimal converter.
@@ -48,11 +47,13 @@ github.com/dominiksalvet/nconv"
 
 init_opts() {
     force_input_radix=false
-    binary_input= # either binary or decimal
+    input_radix= # bin, dec, hex
     force_input_sign=false
-    signed_input= # either signed or unsigned
+    input_sign= # signed, unsigned
+    force_output_radix=false
+    output_radix= # bin, dec, hex
     force_output_width=false
-    output_width=
+    output_width= # a positive number
 }
 
 #-------------------------------------------------------------------------------
@@ -72,14 +73,19 @@ process_args() (
 )
 
 process_opts() {
-    while getopts :bdsuw: _opt; do
+    while getopts :bdhsuBDHW: _opt; do
         case "$_opt" in
-            b) force_input_radix=true; binary_input=true ;;
-            d) force_input_radix=true; binary_input=false ;;
-            s) force_input_sign=true; signed_input=true ;;
-            u) force_input_sign=true; signed_input=false ;;
+            b) force_input_radix=true; input_radix=bin ;;
+            d) force_input_radix=true; input_radix=dec ;;
+            h) force_input_radix=true; input_radix=hex ;;
+            s) force_input_sign=true; input_sign=signed ;;
+            u) force_input_sign=true; input_sign=unsigned ;;
 
-            w)  if ! [ "$OPTARG" -gt 0 ] 2>/dev/null; then
+            B) force_output_radix=true; output_radix=bin ;;
+            D) force_output_radix=true; output_radix=dec ;;
+            H) force_output_radix=true; output_radix=hex ;;
+
+            W)  if ! [ "$OPTARG" -gt 0 ] 2>/dev/null; then
                     echo "invalid output width $OPTARG" >&2; return 1
                 fi
                 force_output_width=true
@@ -101,9 +107,11 @@ convert_nums() {
     fi &&
 
     echo "force_input_radix = $force_input_radix" &&
-    echo "binary_input = $binary_input" &&
+    echo "input_radix = $input_radix" &&
     echo "force_input_sign = $force_input_sign" &&
-    echo "signed_input = $signed_input" &&
+    echo "input_sign = $input_sign" &&
+    echo "force_output_radix = $force_output_radix" &&
+    echo "output_radix = $output_radix" &&
     echo "force_output_width = $force_output_width" &&
     echo "output_width = $output_width" &&
     echo "numbers = $*"
