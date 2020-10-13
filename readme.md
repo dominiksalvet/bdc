@@ -20,7 +20,13 @@ gitpack install github.com/dominiksalvet/nconv
 
 ## Usage
 
-Usage content.
+**Automatic** number conversion:
+
+```
+nconv <number>
+```
+
+> Rules: bin → dec, dec → bin, hex → dec.
 
 ### Example
 
