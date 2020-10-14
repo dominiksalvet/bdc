@@ -11,7 +11,7 @@
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-# INITIALIZATION
+# PROGRAM INITIALIZATION
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
@@ -46,13 +46,9 @@ github.com/dominiksalvet/nconv"
 }
 
 init_opts() {
-    force_input_radix=false
     input_radix= # bin, dec, hex
-    force_input_sign=false
     input_sign= # signed, unsigned
-    force_output_radix=false
     output_radix= # bin, dec, hex
-    force_output_width=false
     output_width= # a positive number
 }
 
@@ -68,7 +64,7 @@ process_args() (
         about) echo "$ABOUT_MESSAGE" ;;
         *)  process_opts "$@" &&
             shift "$((OPTIND - 1))" && # shift to numbers
-            convert_nums "$@" ;;
+            process_nums "$@" ;;
     esac
 )
 
@@ -77,46 +73,117 @@ process_args() (
 process_opts() {
     while getopts :bdhsuBDHW: _opt; do
         case "$_opt" in
-            b) force_input_radix=true; input_radix=bin ;;
-            d) force_input_radix=true; input_radix=dec ;;
-            h) force_input_radix=true; input_radix=hex ;;
-            s) force_input_sign=true; input_sign=signed ;;
-            u) force_input_sign=true; input_sign=unsigned ;;
+            b) input_radix=bin ;;
+            d) input_radix=dec ;;
+            h) input_radix=hex ;;
+            s) input_sign=signed ;;
+            u) input_sign=unsigned ;;
 
-            B) force_output_radix=true; output_radix=bin ;;
-            D) force_output_radix=true; output_radix=dec ;;
-            H) force_output_radix=true; output_radix=hex ;;
+            B) output_radix=bin ;;
+            D) output_radix=dec ;;
+            H) output_radix=hex ;;
 
             W)  if ! [ "$OPTARG" -gt 0 ] 2>/dev/null; then
                     echo "invalid output width $OPTARG" >&2; return 1
                 fi
-                force_output_width=true
                 output_width="$OPTARG" ;;
 
             :) echo "option -$OPTARG requires an argument" >&2; return 1 ;;
-            \?) echo "invalid option -$OPTARG" >&2; return 1 ;;
+            ?) echo "invalid option -$OPTARG" >&2; return 1 ;;
         esac
     done
 }
 
-#-------------------------------------------------------------------------------
-# NUMBER CONVERSION
-#-------------------------------------------------------------------------------
-
-convert_nums() {
+# PARAMETERS:
+#   $@ - numbers
+process_nums() (
     if [ "$#" -eq 0 ]; then
         echo 'no number provided' >&2; return 1
-    fi &&
+    fi
 
-    echo "force_input_radix = $force_input_radix" &&
-    echo "input_radix = $input_radix" &&
-    echo "force_input_sign = $force_input_sign" &&
-    echo "input_sign = $input_sign" &&
-    echo "force_output_radix = $force_output_radix" &&
-    echo "output_radix = $output_radix" &&
-    echo "force_output_width = $force_output_width" &&
-    echo "output_width = $output_width" &&
-    echo "numbers = $*"
+    # missing conversion parameters are deduced from the first number
+    init_conversion "$1" &&
+    for num in "$@"; do
+        convert_num "$num" || return
+    done
+)
+
+#-------------------------------------------------------------------------------
+# CONVERSION INITIALIZATION
+#-------------------------------------------------------------------------------
+
+# PARAMETERS:
+#   $1 - major number
+init_conversion() {
+    init_input_radix "$1" &&
+    init_input_sign "$1" &&
+    init_output_radix
+}
+
+# PARAMETERS:
+#   $1 - major number
+init_input_radix() {
+    if ! [ "$input_radix" ]; then
+        if is_bin_num "$1"; then
+            input_radix=bin;
+        elif is_dec_num "$1"; then
+            input_radix=dec;
+        elif is_hex_num "$1"; then
+            input_radix=hex;
+        else
+            echo "invalid major number $1" >&2; return 1
+        fi
+    fi
+}
+
+# PARAMETERS:
+#   $1 - major number
+init_input_sign() {
+    if ! [ "$input_sign" ]; then
+        case "$1" in
+            -*) input_sign=signed ;;
+            *) input_sign=unsigned ;;
+        esac
+    fi
+}
+
+init_output_radix() {
+    if ! [ "$output_radix" ]; then
+        case "$input_radix" in
+            bin | hex) output_radix=dec ;;
+            dec) output_radix=bin ;;
+            *) echo 'invalid input radix' >&2; return 1
+        esac
+    fi
+}
+
+# PARAMETERS:
+#   $1 - string
+is_bin_num() {
+    echo "$1" | grep -qE '^[01]+$'
+}
+
+# PARAMETERS:
+#   $1 - string
+is_dec_num() {
+    echo "$1" | grep -qE '^-?[[:digit:]]+$'
+}
+
+# PARAMETERS:
+#   $1 - string
+is_hex_num() {
+    echo "$1" | grep -qE '^(0x|0X|)[[:xdigit:]]+$'
+}
+
+#-------------------------------------------------------------------------------
+# CONVERSION
+#-------------------------------------------------------------------------------
+
+# PARAMETERS:
+#   $1 - number
+convert_num() {
+    echo "convert $1 from $input_sign $input_radix to $output_radix of \
+${output_width:-unlimited} width"
 }
 
 #-------------------------------------------------------------------------------
