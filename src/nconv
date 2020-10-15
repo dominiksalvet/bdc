@@ -237,9 +237,18 @@ bin_to_bin() (
 
 # PARAMETERS:
 #   $1 - number
-bin_to_dec() {
-    echo
-}
+bin_to_dec() (
+    bin_num="$(canonical_bin "$1")" &&
+    dec_num="$(echo "obase=10; ibase=2; $bin_num" | bc)" &&
+    if [ "$input_sign" = signed ]; then
+        case "$bin_num" in
+            0*) echo "$dec_num" ;;
+            *) echo "$dec_num - 2^${#1}" | bc ;;
+        esac
+    else
+        echo "$dec_num"
+    fi
+)
 
 # PARAMETERS:
 #   $1 - number
@@ -269,7 +278,7 @@ extend_cbin() (
             extend_bit="$(echo "$1" | cut -c 1)"
         else
             extend_bit=0
-        fi
+        fi &&
         extend_bits="$(awk "BEGIN { while (x++ < $extend_by) printf $extend_bit }")" &&
         echo "$extend_bits$1"
     else
