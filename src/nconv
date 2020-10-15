@@ -72,7 +72,7 @@ process_args() (
 # PARAMETERS:
 #   $@ - nconv options
 process_opts() {
-    while getopts :bdhsuBDHW: _opt; do
+    while getopts :bdhsuBDHW:0123456789 _opt; do
         case "$_opt" in
             b) input_radix=bin ;;
             d) input_radix=dec ;;
@@ -89,9 +89,10 @@ process_opts() {
                 fi
                 output_width="$OPTARG" ;;
 
+            [0-9]) OPTIND="$((OPTIND - 1))" && break ;; # negative decimal number
             :) echo "option -$OPTARG requires an argument" >&2; return 1 ;;
             ?) echo "invalid option -$OPTARG" >&2; return 1 ;;
-        esac
+        esac || return
     done
 }
 
@@ -177,7 +178,7 @@ is_hex_num() {
 }
 
 #-------------------------------------------------------------------------------
-# CONVERSION
+# CONVERSIONS
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
@@ -257,7 +258,7 @@ bin_to_dec() (
 # PARAMETERS:
 #   $1 - binary number
 bin_to_hex() {
-    echo
+    echo "bin_to_hex $1"
 }
 
 # PARAMETERS:
@@ -268,7 +269,7 @@ canonical_bin() (
         *)  num="$(echo "$1" | sed 's/^0*//')" && # remove leading zeros
             if ! [ "$num" ] || [ "$input_sign" = signed ]; then
                 num="0$num"
-            fi
+            fi &&
             echo "$num" ;;
     esac
 )
@@ -297,19 +298,19 @@ extend_cbin() (
 # PARAMETERS:
 #   $1 - decimal number
 dec_to_bin() {
-    echo
+    echo "dec_to_bin $1"
 }
 
 # PARAMETERS:
 #   $1 - decimal number
 dec_to_dec() {
-    echo
+    echo "dec_to_dec $1"
 }
 
 # PARAMETERS:
 #   $1 - decimal number
 dec_to_hex() {
-    echo
+    echo "dec_to_hex $1"
 }
 
 # PARAMETERS:
@@ -336,19 +337,19 @@ extend_cdec() (
 # PARAMETERS:
 #   $1 - hexadecimal number
 hex_to_bin() {
-    echo
+    echo "hex_to_bin $1"
 }
 
 # PARAMETERS:
 #   $1 - hexadecimal number
 hex_to_dec() {
-    echo
+    echo "hex_to_dec $1"
 }
 
 # PARAMETERS:
 #   $1 - hexadecimal number
 hex_to_hex() {
-    echo
+    echo "hex_to_hex $1"
 }
 
 #-------------------------------------------------------------------------------
