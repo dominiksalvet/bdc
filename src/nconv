@@ -187,12 +187,15 @@ convert_num() {
         binbin) check_bin "$1" && bin_to_bin "$1" ;;
         bindec) check_bin "$1" && bin_to_dec "$1" ;;
         binhex) check_bin "$1" && bin_to_hex "$1" ;;
+
         decbin) check_dec "$1" && dec_to_bin "$1" ;;
         decdec) check_dec "$1" && dec_to_dec "$1" ;;
         dechex) check_dec "$1" && dec_to_hex "$1" ;;
+
         hexbin) check_hex "$1" && hex_to_bin "$1" ;;
         hexdec) check_hex "$1" && hex_to_dec "$1" ;;
         hexhex) check_hex "$1" && hex_to_hex "$1" ;;
+
         *) echo "invalid conversion $input_radix -> $output_radix" >&2; return 1
     esac
 }
@@ -236,22 +239,23 @@ bin_to_bin() (
 )
 
 # PARAMETERS:
-#   $1 - number
+#   $1 - binary number
 bin_to_dec() (
     bin_num="$(canonical_bin "$1")" &&
     dec_num="$(echo "obase=10; ibase=2; $bin_num" | bc)" &&
     if [ "$input_sign" = signed ]; then
         case "$bin_num" in
-            0*) echo "$dec_num" ;;
-            *) echo "$dec_num - 2^${#1}" | bc ;;
+            1*) dec_num="$(echo "$dec_num - 2^${#1}" | bc)" ;;
         esac
-    else
-        echo "$dec_num"
-    fi
+    fi &&
+    if [ "$output_width" ]; then
+        dec_num="$(extend_cdec "$dec_num")"
+    fi &&
+    echo "$dec_num"
 )
 
 # PARAMETERS:
-#   $1 - number
+#   $1 - binary number
 bin_to_hex() {
     echo
 }
@@ -291,41 +295,58 @@ extend_cbin() (
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
-#   $1 - number
+#   $1 - decimal number
 dec_to_bin() {
     echo
 }
 
 # PARAMETERS:
-#   $1 - number
+#   $1 - decimal number
 dec_to_dec() {
     echo
 }
 
 # PARAMETERS:
-#   $1 - number
+#   $1 - decimal number
 dec_to_hex() {
     echo
 }
+
+# PARAMETERS:
+#   $1 - canonical decimal number
+extend_cdec() (
+    abs_num="${1#-}"
+    extend_by="$((output_width - ${#abs_num}))" &&
+    if [ "$extend_by" -ge 0 ]; then
+        case "$1" in
+            -*) sign=- ;;
+            *) sign= ;;
+        esac
+        extend_zeros="$(awk "BEGIN { while (x++ < $extend_by) printf 0 }")" &&
+        echo "$sign$extend_zeros$abs_num"
+    else
+        echo "could not fit $1 into $output_width digits" >&2; return 1
+    fi
+)
 
 #-------------------------------------------------------------------------------
 # HEXADECIMAL CONVERSION
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
-#   $1 - number
+#   $1 - hexadecimal number
 hex_to_bin() {
     echo
 }
 
 # PARAMETERS:
-#   $1 - number
+#   $1 - hexadecimal number
 hex_to_dec() {
     echo
 }
 
 # PARAMETERS:
-#   $1 - number
+#   $1 - hexadecimal number
 hex_to_hex() {
     echo
 }
