@@ -12,7 +12,7 @@ The changes not yet present in any release are listed in this section.
 
 * The support for `help` and `about` has been added.
 * Added constraining options for input (`bdhsu`) and output (`BDHW`).
-* Added the major number analysis.
+* Added the main number analysis.
 * Added binary to decimal conversion.
 
 ### Changed

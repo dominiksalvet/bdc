@@ -114,7 +114,7 @@ process_nums() (
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
-#   $1 - major number
+#   $1 - main number
 init_conversion() {
     init_input_radix "$1" &&
     init_input_sign "$1" &&
@@ -122,7 +122,7 @@ init_conversion() {
 }
 
 # PARAMETERS:
-#   $1 - major number
+#   $1 - main number
 init_input_radix() {
     if ! [ "$input_radix" ]; then
         if is_bin_num "$1"; then
@@ -132,13 +132,13 @@ init_input_radix() {
         elif is_hex_num "$1"; then
             input_radix=hex;
         else
-            echo "invalid major number $1" >&2; return 1
+            echo "invalid main number $1" >&2; return 1
         fi
     fi
 }
 
 # PARAMETERS:
-#   $1 - major number
+#   $1 - main number
 init_input_sign() {
     if ! [ "$input_sign" ]; then
         case "$1" in
