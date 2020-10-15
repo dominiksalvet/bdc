@@ -4,9 +4,9 @@
 [![GitPack](https://img.shields.io/badge/-GitPack-571997)](https://github.com/dominiksalvet/gitpack)
 [![POSIX Shell](https://img.shields.io/badge/POSIX-Shell-111111)](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html)
 
-> Binary, decimal and hexadecimal converter.
+> Binary, decimal, and hexadecimal converter.
 
-Nconv (number converter) is a simple and intuitive tool for converting among binary, decimal and hexadecimal numbers. It was designed as a portable Shell script, so that it can be run almost everywhere.
+Nconv (number converter) is a simple and intuitive tool for converting among binary, decimal, and hexadecimal numbers. It was designed as a portable Shell script, so that it can be run almost everywhere.
 
 Nconv is also smart. In most cases, you don't need to state which conversion you are interested in. Just type a number and nconv will perform the conversion automatically. How convenient.
 

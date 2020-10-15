@@ -39,7 +39,7 @@ OPTION:
   -W WIDTH  number of output digits'
 
     readonly ABOUT_MESSAGE="nconv $VERSION
-Binary, decimal and hexadecimal converter.
+Binary, decimal, and hexadecimal converter.
 
 Copyright 2020 Dominik Salvet
 github.com/dominiksalvet/nconv"
