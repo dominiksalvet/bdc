@@ -36,7 +36,7 @@ OPTION:
   -b/-d/-h  binary/decimal/hexadecimal input
   -s/-u     signed/unsigned input
   -B/-D/-H  binary/decimal/hexadecimal output
-  -W WIDTH  output width'
+  -W WIDTH  number of output digits'
 
     readonly ABOUT_MESSAGE="nconv $VERSION
 Binary, decimal and hexadecimal converter.
@@ -46,6 +46,7 @@ github.com/dominiksalvet/nconv"
 }
 
 init_opts() {
+    # global variables
     input_radix= # bin, dec, hex
     input_sign= # signed, unsigned
     output_radix= # bin, dec, hex
@@ -152,25 +153,25 @@ init_output_radix() {
         case "$input_radix" in
             bin | hex) output_radix=dec ;;
             dec) output_radix=bin ;;
-            *) echo 'invalid input radix' >&2; return 1
+            *) echo "invalid input radix $input_radix" >&2; return 1
         esac
     fi
 }
 
 # PARAMETERS:
-#   $1 - string
+#   $1 - number
 is_bin_num() {
     echo "$1" | grep -qE '^[01]+$'
 }
 
 # PARAMETERS:
-#   $1 - string
+#   $1 - number
 is_dec_num() {
     echo "$1" | grep -qE '^-?[[:digit:]]+$'
 }
 
 # PARAMETERS:
-#   $1 - string
+#   $1 - number
 is_hex_num() {
     echo "$1" | grep -qE '^(0x|0X|)[[:xdigit:]]+$'
 }
@@ -182,8 +183,142 @@ is_hex_num() {
 # PARAMETERS:
 #   $1 - number
 convert_num() {
-    echo "convert $1 from $input_sign $input_radix to $output_radix of \
-${output_width:-unlimited} width"
+    case "$input_radix$output_radix" in
+        binbin) check_bin "$1" && bin_to_bin "$1" ;;
+        bindec) check_bin "$1" && bin_to_dec "$1" ;;
+        binhex) check_bin "$1" && bin_to_hex "$1" ;;
+        decbin) check_dec "$1" && dec_to_bin "$1" ;;
+        decdec) check_dec "$1" && dec_to_dec "$1" ;;
+        dechex) check_dec "$1" && dec_to_hex "$1" ;;
+        hexbin) check_hex "$1" && hex_to_bin "$1" ;;
+        hexdec) check_hex "$1" && hex_to_dec "$1" ;;
+        hexhex) check_hex "$1" && hex_to_hex "$1" ;;
+        *) echo "invalid conversion $input_radix -> $output_radix" >&2; return 1
+    esac
+}
+
+# PARAMETERS:
+#   $1 - number
+check_bin() {
+    if ! is_bin_num "$1"; then
+        echo "invalid binary number $1" >&2; return 1
+    fi
+}
+
+# PARAMETERS:
+#   $1 - number
+check_dec() {
+    if ! is_dec_num "$1"; then
+        echo "invalid decimal number $1" >&2; return 1
+    fi
+}
+
+# PARAMETERS:
+#   $1 - number
+check_hex() {
+    if ! is_hex_num "$1"; then
+        echo "invalid hexadecimal number $1" >&2; return 1
+    fi
+}
+
+#-------------------------------------------------------------------------------
+# BINARY CONVERSION
+#-------------------------------------------------------------------------------
+
+# PARAMETERS:
+#   $1 - binary number
+bin_to_bin() (
+    num="$(canonical_bin "$1")" &&
+    if [ "$output_width" ]; then
+        num="$(extend_cbin "$num")"
+    fi &&
+    echo "$num"
+)
+
+# PARAMETERS:
+#   $1 - number
+bin_to_dec() {
+    echo
+}
+
+# PARAMETERS:
+#   $1 - number
+bin_to_hex() {
+    echo
+}
+
+# PARAMETERS:
+#   $1 - binary number
+canonical_bin() (
+    case "$1" in
+        1*) echo "$1" ;;
+        *)  num="$(echo "$1" | sed 's/^0*//')" && # remove leading zeros
+            if ! [ "$num" ] || [ "$input_sign" = signed ]; then
+                num="0$num"
+            fi
+            echo "$num" ;;
+    esac
+)
+
+# PARAMETERS:
+#   $1 - canonical binary number
+extend_cbin() (
+    extend_by="$((output_width - ${#1}))" &&
+    if [ "$extend_by" -ge 0 ]; then
+        if [ "$input_sign" = signed ]; then
+            extend_bit="$(echo "$1" | cut -c 1)"
+        else
+            extend_bit=0
+        fi
+        extend_bits="$(awk "BEGIN { while (x++ < $extend_by) printf $extend_bit }")" &&
+        echo "$extend_bits$1"
+    else
+        echo "could not fit $1 into $output_width digits" >&2; return 1
+    fi
+)
+
+#-------------------------------------------------------------------------------
+# DECIMAL CONVERSION
+#-------------------------------------------------------------------------------
+
+# PARAMETERS:
+#   $1 - number
+dec_to_bin() {
+    echo
+}
+
+# PARAMETERS:
+#   $1 - number
+dec_to_dec() {
+    echo
+}
+
+# PARAMETERS:
+#   $1 - number
+dec_to_hex() {
+    echo
+}
+
+#-------------------------------------------------------------------------------
+# HEXADECIMAL CONVERSION
+#-------------------------------------------------------------------------------
+
+# PARAMETERS:
+#   $1 - number
+hex_to_bin() {
+    echo
+}
+
+# PARAMETERS:
+#   $1 - number
+hex_to_dec() {
+    echo
+}
+
+# PARAMETERS:
+#   $1 - number
+hex_to_hex() {
+    echo
 }
 
 #-------------------------------------------------------------------------------
