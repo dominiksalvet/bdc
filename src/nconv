@@ -2,7 +2,7 @@
 
 #-------------------------------------------------------------------------------
 # Copyright 2020 Dominik Salvet
-# github.com/dominiksalvet/nconv
+# https://github.com/dominiksalvet/nconv
 #-------------------------------------------------------------------------------
 # DESCRIPTION:
 #   This is a simple binary-decimal converter intended for a terminal use.
@@ -42,7 +42,7 @@ OPTION:
 Binary, decimal, and hexadecimal converter.
 
 Copyright 2020 Dominik Salvet
-github.com/dominiksalvet/nconv"
+https://github.com/dominiksalvet/nconv"
 }
 
 init_opts() {
