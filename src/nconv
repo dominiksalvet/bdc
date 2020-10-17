@@ -323,13 +323,13 @@ dec_to_bin() {
 
 # PARAMETERS:
 #   $1 - decimal number
-dec_to_dec() {
+dec_to_dec() (
     num="$(canonical_dec "$1")" &&
     if [ "$output_width" ]; then
         num="$(extend_cdec "$num")"
     fi &&
     echo "$num"
-}
+)
 
 # PARAMETERS:
 #   $1 - decimal number
