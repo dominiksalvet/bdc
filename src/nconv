@@ -89,7 +89,7 @@ process_opts() {
                 fi
                 output_width="$OPTARG" ;;
 
-            [0-9]) OPTIND="$((OPTIND - 1))" && break ;; # negative decimal number
+            [0-9]) OPTIND="$((OPTIND - 1))" && break ;; # negative dec number
             :) echo "option -$OPTARG requires an argument" >&2; return 1 ;;
             ?) echo "invalid option -$OPTARG" >&2; return 1 ;;
         esac || return
@@ -243,10 +243,10 @@ bin_to_bin() (
 #   $1 - binary number
 bin_to_dec() (
     bin_num="$(canonical_bin "$1")" &&
-    dec_num="$(echo "obase=10; ibase=2; $bin_num" | bc)" &&
+    dec_num="$(echo "ibase=2; $bin_num" | bc)" &&
     if [ "$input_sign" = signed ]; then
-        case "$bin_num" in
-            1*) dec_num="$(echo "$dec_num - 2^${#1}" | bc)" ;;
+        case "$bin_num" in 1*) # negative binary numbers
+            dec_num="$(echo "$dec_num - 2^${#1}" | bc)" ;;
         esac
     fi &&
     if [ "$output_width" ]; then
