@@ -324,7 +324,11 @@ dec_to_bin() {
 # PARAMETERS:
 #   $1 - decimal number
 dec_to_dec() {
-    echo "dec_to_dec $1"
+    num="$(canonical_dec "$1")" &&
+    if [ "$output_width" ]; then
+        num="$(extend_cdec "$num")"
+    fi &&
+    echo "$num"
 }
 
 # PARAMETERS:
@@ -332,6 +336,21 @@ dec_to_dec() {
 dec_to_hex() {
     echo "dec_to_hex $1"
 }
+
+# PARAMETERS:
+#   $1 - decimal number
+canonical_dec() (
+    case "$1" in
+        -*) sign=- ;;
+        *) sign= ;;
+    esac
+
+    num="$(echo "$1" | sed 's/^-\?0*//')" &&
+    if ! [ "$num" ]; then
+        num=0
+    fi &&
+    echo "$sign$num"
+)
 
 # PARAMETERS:
 #   $1 - canonical decimal number
