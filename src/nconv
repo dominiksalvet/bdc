@@ -284,12 +284,19 @@ extend_cbin() (
         else
             extend_bit=0
         fi &&
-        extend_bits="$(awk "BEGIN { while (x++ < $extend_by) printf $extend_bit }")" &&
+        extend_bits="$(clone_char "$extend_bit" "$extend_by")" &&
         echo "$extend_bits$1"
     else
         echo "could not fit $1 into $output_width digits" >&2; return 1
     fi
 )
+
+# PARAMETERS:
+#   $1 - character
+#   $2 - count
+clone_char() {
+    awk "BEGIN { while (x++ < $2) printf $1 }"
+}
 
 #-------------------------------------------------------------------------------
 # DECIMAL CONVERSION
@@ -323,7 +330,7 @@ extend_cdec() (
             -*) sign=- ;;
             *) sign= ;;
         esac
-        extend_zeros="$(awk "BEGIN { while (x++ < $extend_by) printf 0 }")" &&
+        extend_zeros="$(clone_char 0 "$extend_by")" &&
         echo "$sign$extend_zeros$abs_num"
     else
         echo "could not fit $1 into $output_width digits" >&2; return 1
