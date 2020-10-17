@@ -297,7 +297,7 @@ extend_cbin() (
         else
             extend_bit=0
         fi &&
-        extend_bits="$(clone_char "$extend_bit" "$extend_by")" &&
+        extend_bits="$(repeat_char "$extend_bit" "$extend_by")" &&
         echo "$extend_bits$1"
     else
         echo "could not fit $1 into $output_width digits" >&2; return 1
@@ -307,9 +307,10 @@ extend_cbin() (
 # PARAMETERS:
 #   $1 - character
 #   $2 - count
-clone_char() {
-    awk "BEGIN { while (x++ < $2) printf $1 }"
-}
+repeat_char() (
+    spaces="$(printf "%$2s")" &&
+    echo "$spaces" | tr ' ' "$1"
+)
 
 #-------------------------------------------------------------------------------
 # DECIMAL CONVERSION
@@ -346,9 +347,21 @@ dec_to_dec() (
 
 # PARAMETERS:
 #   $1 - decimal number
-dec_to_hex() {
-    echo "dec_to_hex $1"
-}
+dec_to_hex() (
+    dec_num="$(canonical_dec "$1")" &&
+    hex_num="$(echo "obase=16; ${dec_num#-}" | bc)" &&
+    if [ "$input_sign" = signed ]; then
+        case "$1" in
+            -*) target_msb=1 ;;
+            *) target_msb=0 ;;
+        esac
+        hex_num="$(adjust_hex_sign "$hex_num" "$target_msb")"
+    fi &&
+    if [ "$output_width" ]; then
+        hex_num="$(extend_chex "$hex_num")"
+    fi &&
+    echo "$hex_num"
+)
 
 # PARAMETERS:
 #   $1 - decimal number
@@ -378,7 +391,7 @@ extend_cdec() (
             -*) sign=- ;;
             *) sign= ;;
         esac
-        extend_zeros="$(clone_char 0 "$extend_by")" &&
+        extend_zeros="$(repeat_char 0 "$extend_by")" &&
         echo "$sign$extend_zeros$abs_num"
     else
         echo "could not fit $1 into $output_width digits" >&2; return 1
@@ -437,7 +450,7 @@ extend_chex() (
                 extend_digit=F ;;
             esac
         fi &&
-        extend_digits="$(clone_char "$extend_digit" "$extend_by")"
+        extend_digits="$(repeat_char "$extend_digit" "$extend_by")" &&
         echo "$extend_digits$1"
     else
         echo "could not fit $1 into $output_width digits" >&2; return 1
