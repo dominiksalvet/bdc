@@ -185,17 +185,17 @@ is_hex_num() {
 #   $1 - number
 convert_num() {
     case "$input_radix$output_radix" in
-        binbin) check_bin "$1" && bin_to_bin "$1" ;;
-        bindec) check_bin "$1" && bin_to_dec "$1" ;;
-        binhex) check_bin "$1" && bin_to_hex "$1" ;;
+        binbin) init_bin_input "$1" && bin_to_bin "$1" ;;
+        bindec) init_bin_input "$1" && bin_to_dec "$1" ;;
+        binhex) init_bin_input "$1" && bin_to_hex "$1" ;;
 
-        decbin) check_dec "$1" && dec_to_bin "$1" ;;
-        decdec) check_dec "$1" && dec_to_dec "$1" ;;
-        dechex) check_dec "$1" && dec_to_hex "$1" ;;
+        decbin) init_dec_input "$1" && dec_to_bin "$1" ;;
+        decdec) init_dec_input "$1" && dec_to_dec "$1" ;;
+        dechex) init_dec_input "$1" && dec_to_hex "$1" ;;
 
-        hexbin) check_hex "$1" && hex_to_bin "$1" ;;
-        hexdec) check_hex "$1" && hex_to_dec "$1" ;;
-        hexhex) check_hex "$1" && hex_to_hex "$1" ;;
+        hexbin) init_hex_input "$1" && hex_to_bin "$1" ;;
+        hexdec) init_hex_input "$1" && hex_to_dec "$1" ;;
+        hexhex) init_hex_input "$1" && hex_to_hex "$1" ;;
 
         *) echo "invalid conversion $input_radix -> $output_radix" >&2; return 1
     esac
@@ -203,7 +203,7 @@ convert_num() {
 
 # PARAMETERS:
 #   $1 - number
-check_bin() {
+init_bin_input() {
     if ! is_bin_num "$1"; then
         echo "invalid binary number $1" >&2; return 1
     fi
@@ -211,15 +211,19 @@ check_bin() {
 
 # PARAMETERS:
 #   $1 - number
-check_dec() {
+init_dec_input() {
     if ! is_dec_num "$1"; then
         echo "invalid decimal number $1" >&2; return 1
+    elif [ "$input_sign" = unsigned ]; then
+        case "$1" in -*)
+            echo "invalid unsigned decimal number $1" >&2; return 1 ;;
+        esac
     fi
 }
 
 # PARAMETERS:
 #   $1 - number
-check_hex() {
+init_hex_input() {
     if ! is_hex_num "$1"; then
         echo "invalid hexadecimal number $1" >&2; return 1
     fi
