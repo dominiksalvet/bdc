@@ -11,7 +11,7 @@
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-# PROGRAM INITIALIZATION
+# GENERAL INITIALIZATION
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
@@ -317,9 +317,22 @@ clone_char() {
 
 # PARAMETERS:
 #   $1 - decimal number
-dec_to_bin() {
-    echo "dec_to_bin $1"
-}
+dec_to_bin() (
+    dec_num="$(canonical_dec "$1")" &&
+    case "$dec_num" in
+        -*) dec_num="$((-dec_num - 1))" &&
+            bin_num="$(echo "obase=2; $dec_num" | bc)" &&
+            bin_num="1$(echo "$bin_num" | tr 01 10)" ;; # invert bits
+        *)  bin_num="$(echo "obase=2; $dec_num" | bc)" &&
+            if [ "$input_sign" = signed ]; then
+                bin_num="0$bin_num"
+            fi ;;
+    esac &&
+    if [ "$output_width" ]; then
+        bin_num="$(extend_cbin "$bin_num")"
+    fi &&
+    echo "$bin_num"
+)
 
 # PARAMETERS:
 #   $1 - decimal number
@@ -349,7 +362,10 @@ canonical_dec() (
     if ! [ "$num" ]; then
         num=0
     fi &&
-    echo "$sign$num"
+    if [ "$num" != 0 ]; then
+        num="$sign$num"
+    fi &&
+    echo "$num"
 )
 
 # PARAMETERS:
