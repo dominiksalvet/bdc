@@ -24,7 +24,7 @@ main() {
 }
 
 init_constants() {
-    readonly VERSION=0.1.0 # the current nconv version
+    readonly VERSION=0.2.0 # the current nconv version
 }
 
 init_strings() {

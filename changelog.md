@@ -8,12 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 The changes not yet present in any release are listed in this section.
 
+## 0.2.0 (2020-10-17)
+
 ### Added
 
 * The support for `help` and `about` has been added.
 * Added constraining options for input (`bdhsu`) and output (`BDHW`).
 * Added the main number analysis.
-* Added conversions from binary numbers.
+* Added binary conversions.
 
 ### Changed
 
