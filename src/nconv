@@ -185,23 +185,19 @@ is_hex_num() {
 
 # PARAMETERS:
 #   $1 - number
-convert_num() {
-    case "$input_radix$output_radix" in
-        binbin) check_bin "$1" && bin_to_bin "$1" ;;
-        bindec) check_bin "$1" && bin_to_dec "$1" ;;
-        binhex) check_bin "$1" && bin_to_hex "$1" ;;
+convert_num() (
+    case "$input_radix" in
+        bin | dec | hex) ;;
+        *) echo "invalid input radix $input_radix" >&2; return 1 ;;
+    esac &&
+    case "$output_radix" in
+        bin | dec | hex) ;;
+        *) echo "invalid output radix $output_radix" >&2; return 1 ;;
+    esac &&
 
-        decbin) check_dec "$1" && dec_to_bin "$1" ;;
-        decdec) check_dec "$1" && dec_to_dec "$1" ;;
-        dechex) check_dec "$1" && dec_to_hex "$1" ;;
-
-        hexbin) check_hex "$1" && hex_to_bin "$1" ;;
-        hexdec) check_hex "$1" && hex_to_dec "$1" ;;
-        hexhex) check_hex "$1" && hex_to_hex "$1" ;;
-
-        *) echo "invalid conversion $input_radix -> $output_radix" >&2; return 1
-    esac
-}
+    check_"$input_radix" "$1" &&
+    "$input_radix"_to_"$output_radix" "$1"
+)
 
 # PARAMETERS:
 #   $1 - number
@@ -237,82 +233,41 @@ check_hex() {
 
 # PARAMETERS:
 #   $1 - binary number
-bin_to_bin() (
-    num="$(canonical_bin "$1")" &&
-    if [ "$output_width" ]; then
-        num="$(extend_cbin "$num")"
-    fi &&
-    echo "$num"
-)
+bin_to_bin() {
+    canonical_bin "$1"
+}
 
 # PARAMETERS:
 #   $1 - binary number
 bin_to_dec() (
     bin_num="$(canonical_bin "$1")" &&
-    dec_num="$(echo "ibase=2; $bin_num" | bc)" &&
-    if [ "$input_sign" = signed ]; then
-        case "$bin_num" in 1*) # negative binary numbers
-            dec_num="$(echo "$dec_num - 2^${#1}" | bc)" ;;
-        esac
-    fi &&
-    if [ "$output_width" ]; then
-        dec_num="$(extend_cdec "$dec_num")"
-    fi &&
-    echo "$dec_num"
+    echo "ibase=2; $bin_num" | bc
 )
 
 # PARAMETERS:
 #   $1 - binary number
 bin_to_hex() (
     bin_num="$(canonical_bin "$1")" &&
-    hex_num="$(echo "obase=16; ibase=2; $bin_num" | bc)" &&
-    if [ "$input_sign" = signed ]; then
-        target_msb="$(echo "$bin_num" | cut -c 1)" &&
-        hex_num="$(adjust_hex_sign "$hex_num" "$target_msb")"
-    fi &&
-    if [ "$output_width" ]; then
-        hex_num="$(extend_chex "$hex_num")"
-    fi &&
-    echo "$hex_num"
+    echo "ibase=16; $bin_num" | bc
 )
 
 # PARAMETERS:
 #   $1 - binary number
 canonical_bin() (
-    case "$1" in
-        1*) echo "$1" ;;
-        *)  num="$(echo "$1" | sed 's/^0*//')" && # remove leading zeros
-            if ! [ "$num" ] || [ "$input_sign" = signed ]; then
-                num="0$num"
-            fi &&
-            echo "$num" ;;
-    esac
+    num="$(echo "obase=2; ibase=2; $1" | bc)" &&
+    if [ "$input_sign" = signed ] && starts_with "$1" 1; then
+        num="$(echo "$num" | tr 01 10)" && # invert bits
+        num="-$(echo "obase=2; ibase=2; $num + 1" | bc)"
+    fi &&
+    echo "$num"
 )
 
 # PARAMETERS:
-#   $1 - canonical binary number
-extend_cbin() (
-    extend_by="$((output_width - ${#1}))" &&
-    if [ "$extend_by" -ge 0 ]; then
-        if [ "$input_sign" = signed ]; then
-            extend_bit="$(echo "$1" | cut -c 1)"
-        else
-            extend_bit=0
-        fi &&
-        extend_bits="$(repeat_char "$extend_bit" "$extend_by")" &&
-        echo "$extend_bits$1"
-    else
-        echo "could not fit $1 into $output_width digits" >&2; return 1
-    fi
-)
-
-# PARAMETERS:
-#   $1 - character
-#   $2 - count
-repeat_char() (
-    spaces="$(printf "%$2s")" &&
-    echo "$spaces" | tr ' ' "$1"
-)
+#   $1 - string
+#   $2 - alphanumeric characters
+starts_with() {
+    echo "$1" | grep -q "^[$2]"
+}
 
 #-------------------------------------------------------------------------------
 # DECIMAL CONVERSION
@@ -322,83 +277,27 @@ repeat_char() (
 #   $1 - decimal number
 dec_to_bin() (
     dec_num="$(canonical_dec "$1")" &&
-    case "$dec_num" in
-        -*) dec_num="$((-dec_num - 1))" &&
-            bin_num="$(echo "obase=2; $dec_num" | bc)" &&
-            bin_num="1$(echo "$bin_num" | tr 01 10)" ;; # invert bits
-        *)  bin_num="$(echo "obase=2; $dec_num" | bc)" &&
-            if [ "$input_sign" = signed ]; then
-                bin_num="0$bin_num"
-            fi ;;
-    esac &&
-    if [ "$output_width" ]; then
-        bin_num="$(extend_cbin "$bin_num")"
-    fi &&
-    echo "$bin_num"
+    echo "obase=2; $dec_num" | bc
 )
 
 # PARAMETERS:
 #   $1 - decimal number
-dec_to_dec() (
-    num="$(canonical_dec "$1")" &&
-    if [ "$output_width" ]; then
-        num="$(extend_cdec "$num")"
-    fi &&
-    echo "$num"
-)
+dec_to_dec() {
+    canonical_dec "$1"
+}
 
 # PARAMETERS:
 #   $1 - decimal number
 dec_to_hex() (
     dec_num="$(canonical_dec "$1")" &&
-    hex_num="$(echo "obase=16; ${dec_num#-}" | bc)" &&
-    if [ "$input_sign" = signed ]; then
-        case "$1" in
-            -*) target_msb=1 ;;
-            *) target_msb=0 ;;
-        esac
-        hex_num="$(adjust_hex_sign "$hex_num" "$target_msb")"
-    fi &&
-    if [ "$output_width" ]; then
-        hex_num="$(extend_chex "$hex_num")"
-    fi &&
-    echo "$hex_num"
+    echo "obase=16; $dec_num" | bc
 )
 
 # PARAMETERS:
 #   $1 - decimal number
-canonical_dec() (
-    case "$1" in
-        -*) sign=- ;;
-        *) sign= ;;
-    esac
-
-    num="$(echo "$1" | sed 's/^-\?0*//')" &&
-    if ! [ "$num" ]; then
-        num=0
-    fi &&
-    if [ "$num" != 0 ]; then
-        num="$sign$num"
-    fi &&
-    echo "$num"
-)
-
-# PARAMETERS:
-#   $1 - canonical decimal number
-extend_cdec() (
-    abs_num="${1#-}"
-    extend_by="$((output_width - ${#abs_num}))" &&
-    if [ "$extend_by" -ge 0 ]; then
-        case "$1" in
-            -*) sign=- ;;
-            *) sign= ;;
-        esac
-        extend_zeros="$(repeat_char 0 "$extend_by")" &&
-        echo "$sign$extend_zeros$abs_num"
-    else
-        echo "could not fit $1 into $output_width digits" >&2; return 1
-    fi
-)
+canonical_dec() {
+    echo "$1" | bc
+}
 
 #-------------------------------------------------------------------------------
 # HEXADECIMAL CONVERSION
@@ -406,57 +305,33 @@ extend_cdec() (
 
 # PARAMETERS:
 #   $1 - hexadecimal number
-hex_to_bin() {
-    echo "hex_to_bin $1"
-}
+hex_to_bin() (
+    hex_num="$(canonical_hex "$1")" &&
+    echo "obase=2; ibase=16; $hex_num" | bc
+)
 
 # PARAMETERS:
 #   $1 - hexadecimal number
-hex_to_dec() {
-    echo "hex_to_dec $1"
-}
+hex_to_dec() (
+    hex_num="$(canonical_hex "$1")" &&
+    echo "ibase=16; $hex_num" | bc
+)
 
 # PARAMETERS:
 #   $1 - hexadecimal number
 hex_to_hex() {
-    echo "hex_to_hex $1"
+    canonical_hex "$1"
 }
 
 # PARAMETERS:
-#   $1 - canonical hexadecimal number
-#   $2 - target most significant bit
-adjust_hex_sign() (
-    left_digit="$(echo "$1" | cut -c 1)" &&
-    case "$2" in
-        0)  case "$left_digit" in [8-9] | [A-F]) # negative -> positive
-                left_digit="0$left_digit" ;;
-            esac ;;
-        1)  case "$left_digit" in # positive -> negative
-                1 | 3 | 7) left_digit=F ;;
-                2 | 6) left_digit=E ;;
-                4) left_digit=C ;;
-                5) left_digit=D ;;
-            esac ;;
-    esac &&
-    echo "$left_digit${1#?}"
-)
-
-# PARAMETERS:
-#   $1 - canonical hexadecimal number
-extend_chex() (
-    extend_by="$((output_width - ${#1}))" &&
-    if [ "$extend_by" -ge 0 ]; then
-        extend_digit=0
-        if [ "$input_sign" = signed ]; then
-            case "$1" in [8-9]* | [A-F]*)
-                extend_digit=F ;;
-            esac
-        fi &&
-        extend_digits="$(repeat_char "$extend_digit" "$extend_by")" &&
-        echo "$extend_digits$1"
-    else
-        echo "could not fit $1 into $output_width digits" >&2; return 1
-    fi
+#   $1 - hexadecimal number
+canonical_hex() (
+    num="$(echo "obase=16; ibase=16; $1" | bc)" &&
+    if [ "$input_sign" = signed ] && starts_with "$1" 89ABCDEF; then
+        num="$(echo "$num" | tr 0123456789ABCDEF FEDCBA9876543210)" && # invert
+        num="-$(echo "obase=16; ibase=16; $num + 1" | bc)"
+    fi &&
+    echo "$num"
 )
 
 #-------------------------------------------------------------------------------

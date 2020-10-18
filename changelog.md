@@ -11,10 +11,12 @@ The changes not yet present in any release are listed in this section.
 ### Added
 
 * Added decimal conversions.
+* Added hexadecimal conversions.
 
 ### Changed
 
 * Each result is printed as a single line.
+* Internal number representation has been changed to respect `bc`.
 
 ## 0.2.0 (2020-10-17)
 
