@@ -12,6 +12,10 @@ The changes not yet present in any release are listed in this section.
 
 * Added decimal conversions.
 
+### Changed
+
+* Each result is printed as a single line.
+
 ## 0.2.0 (2020-10-17)
 
 ### Added

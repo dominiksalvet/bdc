@@ -106,7 +106,9 @@ process_nums() (
     # missing conversion parameters are deduced from the first number
     init_conversion "$1" &&
     for num in "$@"; do
-        convert_num "$num" || return
+        result="$(convert_num "$num")" &&
+        # print result as a single line
+        echo "$result" | sed ':a; N; s/\\\n//; ba' || return
     done
 )
 
