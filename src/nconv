@@ -164,19 +164,19 @@ init_output_radix() {
 # PARAMETERS:
 #   $1 - number
 is_bin_num() {
-    echo "$1" | grep -qE '^[01]+$'
+    echo "$1" | grep -q '^[01]\+$'
 }
 
 # PARAMETERS:
 #   $1 - number
 is_dec_num() {
-    echo "$1" | grep -qE '^-?[0123456789]+$'
+    echo "$1" | grep -q '^-\?[0123456789]\+$'
 }
 
 # PARAMETERS:
 #   $1 - number
 is_hex_num() {
-    echo "$1" | grep -qE '^[0123456789ABCDEF]+$'
+    echo "$1" | grep -q '^[0123456789ABCDEF]\+$'
 }
 
 #-------------------------------------------------------------------------------
@@ -267,7 +267,10 @@ canonical_bin() (
 #   $1 - string
 #   $2 - alphanumeric characters
 starts_with() {
-    echo "$1" | grep -q "^[$2]"
+    case "$1" in
+        ["$2"]*) return 0 ;;
+        *) return 1 ;;
+    esac
 }
 
 # PARAMETERS:
