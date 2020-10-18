@@ -196,7 +196,8 @@ convert_num() (
     esac &&
 
     check_"$input_radix" "$1" &&
-    "$input_radix"_to_"$output_radix" "$1"
+    num="$("$input_radix"_to_c"$output_radix" "$1")" &&
+    format_c"$output_radix" "$num"
 )
 
 # PARAMETERS:
@@ -233,20 +234,20 @@ check_hex() {
 
 # PARAMETERS:
 #   $1 - binary number
-bin_to_bin() {
+bin_to_cbin() {
     canonical_bin "$1"
 }
 
 # PARAMETERS:
 #   $1 - binary number
-bin_to_dec() (
+bin_to_cdec() (
     bin_num="$(canonical_bin "$1")" &&
     echo "ibase=2; $bin_num" | bc
 )
 
 # PARAMETERS:
 #   $1 - binary number
-bin_to_hex() (
+bin_to_chex() (
     bin_num="$(canonical_bin "$1")" &&
     echo "ibase=16; $bin_num" | bc
 )
@@ -269,26 +270,32 @@ starts_with() {
     echo "$1" | grep -q "^[$2]"
 }
 
+# PARAMETERS:
+#   $1 - canonical binary number
+format_cbin() {
+    echo "format_cbin $1"
+}
+
 #-------------------------------------------------------------------------------
 # DECIMAL CONVERSION
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
 #   $1 - decimal number
-dec_to_bin() (
+dec_to_cbin() (
     dec_num="$(canonical_dec "$1")" &&
     echo "obase=2; $dec_num" | bc
 )
 
 # PARAMETERS:
 #   $1 - decimal number
-dec_to_dec() {
+dec_to_cdec() {
     canonical_dec "$1"
 }
 
 # PARAMETERS:
 #   $1 - decimal number
-dec_to_hex() (
+dec_to_chex() (
     dec_num="$(canonical_dec "$1")" &&
     echo "obase=16; $dec_num" | bc
 )
@@ -299,27 +306,33 @@ canonical_dec() {
     echo "$1" | bc
 }
 
+# PARAMETERS:
+#   $1 - canonical decimal number
+format_cdec() {
+    echo "format_cdec $1"
+}
+
 #-------------------------------------------------------------------------------
 # HEXADECIMAL CONVERSION
 #-------------------------------------------------------------------------------
 
 # PARAMETERS:
 #   $1 - hexadecimal number
-hex_to_bin() (
+hex_to_cbin() (
     hex_num="$(canonical_hex "$1")" &&
     echo "obase=2; ibase=16; $hex_num" | bc
 )
 
 # PARAMETERS:
 #   $1 - hexadecimal number
-hex_to_dec() (
+hex_to_cdec() (
     hex_num="$(canonical_hex "$1")" &&
     echo "ibase=16; $hex_num" | bc
 )
 
 # PARAMETERS:
 #   $1 - hexadecimal number
-hex_to_hex() {
+hex_to_chex() {
     canonical_hex "$1"
 }
 
@@ -333,6 +346,12 @@ canonical_hex() (
     fi &&
     echo "$num"
 )
+
+# PARAMETERS:
+#   $1 - canonical hexadecimal number
+format_chex() {
+    echo "format_chex $1"
+}
 
 #-------------------------------------------------------------------------------
 # CALL MAIN
