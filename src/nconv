@@ -4,10 +4,8 @@
 # Copyright 2020 Dominik Salvet
 # https://github.com/dominiksalvet/nconv
 #-------------------------------------------------------------------------------
-# DESCRIPTION:
-#   This is a simple binary-decimal converter intended for a terminal use.
-# PARAMETERS:
-#   All given arguments are processed as nconv help describes.
+# This is a simple yet smart binary, decimal, and hexadecimal converter. This
+# script is all you need. All arguments are processed as nconv help describes.
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
