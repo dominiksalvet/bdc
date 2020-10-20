@@ -14,8 +14,7 @@
 # GENERAL INITIALIZATION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $@ - nconv arguments
+# $@ - nconv arguments
 main() {
     init_constants &&
     init_strings &&
@@ -57,8 +56,7 @@ init_opts() {
 # ARGUMENT PROCESSING
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $@ - nconv arguments
+# $@ - nconv arguments
 process_args() (
     case "$1" in
         help) echo "$HELP_MESSAGE" ;;
@@ -69,8 +67,7 @@ process_args() (
     esac
 )
 
-# PARAMETERS:
-#   $@ - nconv options
+# $@ - nconv options
 process_opts() {
     while getopts :bdhsuBDHW:0123456789 _opt; do
         case "$_opt" in
@@ -96,8 +93,7 @@ process_opts() {
     done
 }
 
-# PARAMETERS:
-#   $@ - numbers
+# $@ - numbers
 process_nums() (
     if [ "$#" -eq 0 ]; then
         echo 'no number provided' >&2; return 1
@@ -116,16 +112,14 @@ process_nums() (
 # CONVERSION INITIALIZATION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - main number
+# $1 - main number
 init_conversion() {
     init_input_radix "$1" &&
     init_input_sign "$1" &&
     init_output_radix
 }
 
-# PARAMETERS:
-#   $1 - main number
+# $1 - main number
 init_input_radix() {
     if ! [ "$input_radix" ]; then
         if is_bin_num "$1"; then
@@ -140,8 +134,7 @@ init_input_radix() {
     fi
 }
 
-# PARAMETERS:
-#   $1 - main number
+# $1 - main number
 init_input_sign() {
     if ! [ "$input_sign" ]; then
         case "$1" in
@@ -161,20 +154,17 @@ init_output_radix() {
     fi
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 is_bin_num() {
     echo "$1" | grep -q '^[01]\+$'
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 is_dec_num() {
     echo "$1" | grep -q '^-\?[0123456789]\+$'
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 is_hex_num() {
     echo "$1" | grep -q '^[0123456789ABCDEF]\+$'
 }
@@ -183,8 +173,7 @@ is_hex_num() {
 # CONVERSIONS
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 convert_num() (
     case "$input_radix" in
         bin | dec | hex) ;;
@@ -200,16 +189,14 @@ convert_num() (
     bc"$output_radix"_to_canonical "$num"
 )
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 check_bin() {
     if ! is_bin_num "$1"; then
         echo "invalid binary number $1" >&2; return 1
     fi
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 check_dec() {
     if ! is_dec_num "$1"; then
         echo "invalid decimal number $1" >&2; return 1
@@ -220,8 +207,7 @@ check_dec() {
     fi
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 check_hex() {
     if ! is_hex_num "$1"; then
         echo "invalid hexadecimal number $1" >&2; return 1
@@ -232,8 +218,7 @@ check_hex() {
 # BINARY CONVERSION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - binary number
+# $1 - binary number
 bin_to_bcbin() (
     num="$(echo "obase=2; ibase=2; $1" | bc)" &&
     if [ "$input_sign" = signed ] && starts_with "$1" 1; then
@@ -243,23 +228,20 @@ bin_to_bcbin() (
     echo "$num"
 )
 
-# PARAMETERS:
-#   $1 - binary number
+# $1 - binary number
 bin_to_bcdec() (
     bin_num="$(bin_to_bcbin "$1")" &&
     echo "ibase=2; $bin_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - binary number
+# $1 - binary number
 bin_to_bchex() (
     bin_num="$(bin_to_bcbin "$1")" &&
     echo "obase=16; ibase=2; $bin_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - string
-#   $2 - characters
+# $1 - string
+# $2 - characters
 starts_with() {
     case "$1" in
         ["$2"]*) return 0 ;;
@@ -267,8 +249,7 @@ starts_with() {
     esac
 }
 
-# PARAMETERS:
-#   $1 - bc binary number
+# $1 - bc binary number
 bcbin_to_canonical() (
     if starts_with "$1" -; then
         num="$(echo "obase=2; ibase=2; -($1) - 1" | bc)" &&
@@ -284,28 +265,24 @@ bcbin_to_canonical() (
 # DECIMAL CONVERSION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - decimal number
+# $1 - decimal number
 dec_to_bcbin() (
     dec_num="$(dec_to_bcdec "$1")" &&
     echo "obase=2; $dec_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - decimal number
+# $1 - decimal number
 dec_to_bcdec() {
     echo "$1" | bc
 }
 
-# PARAMETERS:
-#   $1 - decimal number
+# $1 - decimal number
 dec_to_bchex() (
     dec_num="$(dec_to_bcdec "$1")" &&
     echo "obase=16; $dec_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - bc decimal number
+# $1 - bc decimal number
 bcdec_to_canonical() {
     echo "$1" # equal to input
 }
@@ -314,22 +291,19 @@ bcdec_to_canonical() {
 # HEXADECIMAL CONVERSION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - hexadecimal number
+# $1 - hexadecimal number
 hex_to_bcbin() (
     hex_num="$(hex_to_bchex "$1")" &&
     echo "obase=2; ibase=16; $hex_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - hexadecimal number
+# $1 - hexadecimal number
 hex_to_bcdec() (
     hex_num="$(hex_to_bchex "$1")" &&
     echo "ibase=16; $hex_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - hexadecimal number
+# $1 - hexadecimal number
 hex_to_bchex() (
     num="$(echo "obase=16; ibase=16; $1" | bc)" &&
     if [ "$input_sign" = signed ] && starts_with "$1" 89ABCDEF; then
@@ -339,8 +313,7 @@ hex_to_bchex() (
     echo "$num"
 )
 
-# PARAMETERS:
-#   $1 - bc hexadecimal number
+# $1 - bc hexadecimal number
 bchex_to_canonical() (
     num="$1"
     if starts_with "$num" -; then
