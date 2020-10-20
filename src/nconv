@@ -278,11 +278,12 @@ starts_with() {
 format_cbin() (
     if starts_with "$1" -; then
         num="$(echo "obase=2; ibase=2; -($1) - 1" | bc)" &&
-        num="1$(echo "${num#0}" | tr 01 10)"
+        echo "0${num#0}" | tr 01 10
     elif [ "$input_sign" = signed ]; then
-        num="0${num#0}"
-    fi &&
-    echo "$num"
+        echo "0${1#0}"
+    else
+        echo "$1"
+    fi
 )
 
 #-------------------------------------------------------------------------------
