@@ -265,7 +265,7 @@ canonical_bin() (
 
 # PARAMETERS:
 #   $1 - string
-#   $2 - alphanumeric characters
+#   $2 - characters
 starts_with() {
     case "$1" in
         ["$2"]*) return 0 ;;
