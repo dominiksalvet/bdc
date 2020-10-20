@@ -249,7 +249,7 @@ bin_to_cdec() (
 #   $1 - binary number
 bin_to_chex() (
     bin_num="$(canonical_bin "$1")" &&
-    echo "ibase=16; $bin_num" | bc
+    echo "obase=16; ibase=2; $bin_num" | bc
 )
 
 # PARAMETERS:
