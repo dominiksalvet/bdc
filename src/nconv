@@ -275,9 +275,15 @@ starts_with() {
 
 # PARAMETERS:
 #   $1 - canonical binary number
-format_cbin() {
-    echo "format_cbin $1"
-}
+format_cbin() (
+    if starts_with "$1" -; then
+        num="$(echo "obase=2; ibase=2; -($1) - 1" | bc)" &&
+        num="1$(echo "${num#0}" | tr 01 10)"
+    elif [ "$input_sign" = signed ]; then
+        num="0${num#0}"
+    fi &&
+    echo "$num"
+)
 
 #-------------------------------------------------------------------------------
 # DECIMAL CONVERSION
