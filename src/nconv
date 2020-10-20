@@ -359,9 +359,19 @@ canonical_hex() (
 
 # PARAMETERS:
 #   $1 - canonical hexadecimal number
-format_chex() {
-    echo "format_chex $1"
-}
+format_chex() (
+    num="$1"
+    if starts_with "$num" -; then
+        num="$(echo "obase=16; ibase=16; -($num) - 1" | bc)" &&
+        num="$(echo "$num" | tr 0123456789ABCDEF FEDCBA9876543210)" &&
+        if starts_with "$num" 01234567; then
+            num="F$num"
+        fi
+    elif [ "$input_sign" = signed ] && starts_with "$num" 89ABCDEF; then
+        num="0$num"
+    fi &&
+    echo "$num"
+)
 
 #-------------------------------------------------------------------------------
 # CALL MAIN
