@@ -184,7 +184,11 @@ convert_num() (
 
     check_"$input_radix" "$1" &&
     num="$("$input_radix"_to_bc"$output_radix" "$1")" &&
-    bc"$output_radix"_to_canonical "$num"
+    num="$(bc"$output_radix"_to_canonical "$num")" &&
+    if [ "$output_width" ]; then
+        num="$(extend_c"$output_radix" "$num")"
+    fi &&
+    echo "$num"
 )
 
 # $1 - number
@@ -259,6 +263,28 @@ bcbin_to_canonical() (
     fi
 )
 
+# $1 - canonical binary number
+extend_cbin() (
+    extend_by="$((output_width - ${#1}))" &&
+    if [ "$extend_by" -ge 0 ]; then
+        extend_bit=0
+        if [ "$input_sign" = signed ]; then
+            extend_bit="$(echo "$1" | cut -c 1)" # most significant bit
+        fi &&
+        extend_bits="$(repeat_char "$extend_bit" "$extend_by")" &&
+        echo "$extend_bits$1"
+    else
+        echo "could not fit $1 into $output_width digits" >&2; return 1
+    fi
+)
+
+# $1 - character
+# $2 - count
+repeat_char() (
+    spaces="$(printf "%$2s")" &&
+    echo "$spaces" | tr ' ' "$1"
+)
+
 #-------------------------------------------------------------------------------
 # DECIMAL CONVERSION
 #-------------------------------------------------------------------------------
@@ -283,6 +309,11 @@ dec_to_bchex() (
 # $1 - bc decimal number
 bcdec_to_canonical() {
     echo "$1" # equal to input
+}
+
+# $1 - canonical decimal number
+extend_cdec() {
+    echo "extend_cdec $1"
 }
 
 #-------------------------------------------------------------------------------
@@ -325,6 +356,11 @@ bchex_to_canonical() (
     fi &&
     echo "$num"
 )
+
+# $1 - canonical hexadecimal number
+extend_chex() {
+    echo "extend_chex $1"
+}
 
 #-------------------------------------------------------------------------------
 # CALL MAIN
