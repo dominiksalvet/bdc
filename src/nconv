@@ -4,18 +4,15 @@
 # Copyright 2020 Dominik Salvet
 # https://github.com/dominiksalvet/nconv
 #-------------------------------------------------------------------------------
-# DESCRIPTION:
-#   This is a simple binary-decimal converter intended for a terminal use.
-# PARAMETERS:
-#   All given arguments are processed as nconv help describes.
+# This is a simple yet smart binary, decimal, and hexadecimal converter. This
+# script is all you need. All arguments are processed as nconv help describes.
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 # GENERAL INITIALIZATION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $@ - nconv arguments
+# $@ - nconv arguments
 main() {
     init_constants &&
     init_strings &&
@@ -57,8 +54,7 @@ init_opts() {
 # ARGUMENT PROCESSING
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $@ - nconv arguments
+# $@ - nconv arguments
 process_args() (
     case "$1" in
         help) echo "$HELP_MESSAGE" ;;
@@ -69,8 +65,7 @@ process_args() (
     esac
 )
 
-# PARAMETERS:
-#   $@ - nconv options
+# $@ - nconv options
 process_opts() {
     while getopts :bdhsuBDHW:0123456789 _opt; do
         case "$_opt" in
@@ -96,8 +91,7 @@ process_opts() {
     done
 }
 
-# PARAMETERS:
-#   $@ - numbers
+# $@ - numbers
 process_nums() (
     if [ "$#" -eq 0 ]; then
         echo 'no number provided' >&2; return 1
@@ -116,16 +110,14 @@ process_nums() (
 # CONVERSION INITIALIZATION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - main number
+# $1 - main number
 init_conversion() {
     init_input_radix "$1" &&
     init_input_sign "$1" &&
     init_output_radix
 }
 
-# PARAMETERS:
-#   $1 - main number
+# $1 - main number
 init_input_radix() {
     if ! [ "$input_radix" ]; then
         if is_bin_num "$1"; then
@@ -140,8 +132,7 @@ init_input_radix() {
     fi
 }
 
-# PARAMETERS:
-#   $1 - main number
+# $1 - main number
 init_input_sign() {
     if ! [ "$input_sign" ]; then
         case "$1" in
@@ -161,58 +152,53 @@ init_output_radix() {
     fi
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 is_bin_num() {
-    echo "$1" | grep -qE '^[01]+$'
+    echo "$1" | grep -q '^[01]\+$'
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 is_dec_num() {
-    echo "$1" | grep -qE '^-?[0123456789]+$'
+    echo "$1" | grep -q '^-\?[0123456789]\+$'
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 is_hex_num() {
-    echo "$1" | grep -qE '^[0123456789ABCDEF]+$'
+    echo "$1" | grep -q '^[0123456789ABCDEF]\+$'
 }
 
 #-------------------------------------------------------------------------------
 # CONVERSIONS
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - number
-convert_num() {
-    case "$input_radix$output_radix" in
-        binbin) check_bin "$1" && bin_to_bin "$1" ;;
-        bindec) check_bin "$1" && bin_to_dec "$1" ;;
-        binhex) check_bin "$1" && bin_to_hex "$1" ;;
+# $1 - number
+convert_num() (
+    case "$input_radix" in
+        bin | dec | hex) ;;
+        *) echo "invalid input radix $input_radix" >&2; return 1 ;;
+    esac &&
+    case "$output_radix" in
+        bin | dec | hex) ;;
+        *) echo "invalid output radix $output_radix" >&2; return 1 ;;
+    esac &&
 
-        decbin) check_dec "$1" && dec_to_bin "$1" ;;
-        decdec) check_dec "$1" && dec_to_dec "$1" ;;
-        dechex) check_dec "$1" && dec_to_hex "$1" ;;
+    check_"$input_radix" "$1" &&
+    num="$("$input_radix"_to_bc"$output_radix" "$1")" &&
+    num="$(bc"$output_radix"_to_canonical "$num")" &&
+    if [ "$output_width" ]; then
+        num="$(extend_c"$output_radix" "$num")"
+    fi &&
+    echo "$num"
+)
 
-        hexbin) check_hex "$1" && hex_to_bin "$1" ;;
-        hexdec) check_hex "$1" && hex_to_dec "$1" ;;
-        hexhex) check_hex "$1" && hex_to_hex "$1" ;;
-
-        *) echo "invalid conversion $input_radix -> $output_radix" >&2; return 1
-    esac
-}
-
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 check_bin() {
     if ! is_bin_num "$1"; then
         echo "invalid binary number $1" >&2; return 1
     fi
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 check_dec() {
     if ! is_dec_num "$1"; then
         echo "invalid decimal number $1" >&2; return 1
@@ -223,8 +209,7 @@ check_dec() {
     fi
 }
 
-# PARAMETERS:
-#   $1 - number
+# $1 - number
 check_hex() {
     if ! is_hex_num "$1"; then
         echo "invalid hexadecimal number $1" >&2; return 1
@@ -235,166 +220,102 @@ check_hex() {
 # BINARY CONVERSION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - binary number
-bin_to_bin() (
-    num="$(canonical_bin "$1")" &&
-    if [ "$output_width" ]; then
-        num="$(extend_cbin "$num")"
+# $1 - binary number
+bin_to_bcbin() (
+    num="$(echo "obase=2; ibase=2; $1" | bc)" &&
+    if [ "$input_sign" = signed ] && starts_with "$1" 1; then
+        num="$(echo "$num" | tr 01 10)" && # invert bits
+        num="-$(echo "obase=2; ibase=2; $num + 1" | bc)"
     fi &&
     echo "$num"
 )
 
-# PARAMETERS:
-#   $1 - binary number
-bin_to_dec() (
-    bin_num="$(canonical_bin "$1")" &&
-    dec_num="$(echo "ibase=2; $bin_num" | bc)" &&
-    if [ "$input_sign" = signed ]; then
-        case "$bin_num" in 1*) # negative binary numbers
-            dec_num="$(echo "$dec_num - 2^${#1}" | bc)" ;;
-        esac
-    fi &&
-    if [ "$output_width" ]; then
-        dec_num="$(extend_cdec "$dec_num")"
-    fi &&
-    echo "$dec_num"
+# $1 - binary number
+bin_to_bcdec() (
+    bin_num="$(bin_to_bcbin "$1")" &&
+    echo "ibase=2; $bin_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - binary number
-bin_to_hex() (
-    bin_num="$(canonical_bin "$1")" &&
-    hex_num="$(echo "obase=16; ibase=2; $bin_num" | bc)" &&
-    if [ "$input_sign" = signed ]; then
-        target_msb="$(echo "$bin_num" | cut -c 1)" &&
-        hex_num="$(adjust_hex_sign "$hex_num" "$target_msb")"
-    fi &&
-    if [ "$output_width" ]; then
-        hex_num="$(extend_chex "$hex_num")"
-    fi &&
-    echo "$hex_num"
+# $1 - binary number
+bin_to_bchex() (
+    bin_num="$(bin_to_bcbin "$1")" &&
+    echo "obase=16; ibase=2; $bin_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - binary number
-canonical_bin() (
+# $1 - string
+# $2 - characters
+starts_with() {
     case "$1" in
-        1*) echo "$1" ;;
-        *)  num="$(echo "$1" | sed 's/^0*//')" && # remove leading zeros
-            if ! [ "$num" ] || [ "$input_sign" = signed ]; then
-                num="0$num"
-            fi &&
-            echo "$num" ;;
+        ["$2"]*) return 0 ;;
+        *) return 1 ;;
     esac
+}
+
+# $1 - bc binary number
+bcbin_to_canonical() (
+    if starts_with "$1" -; then
+        num="$(echo "obase=2; ibase=2; -($1) - 1" | bc)" &&
+        echo "0${num#0}" | tr 01 10
+    elif [ "$input_sign" = signed ]; then
+        echo "0${1#0}"
+    else
+        echo "$1"
+    fi
 )
 
-# PARAMETERS:
-#   $1 - canonical binary number
+# $1 - canonical binary number
 extend_cbin() (
-    extend_by="$((output_width - ${#1}))" &&
-    if [ "$extend_by" -ge 0 ]; then
-        if [ "$input_sign" = signed ]; then
-            extend_bit="$(echo "$1" | cut -c 1)"
-        else
-            extend_bit=0
-        fi &&
-        extend_bits="$(repeat_char "$extend_bit" "$extend_by")" &&
-        echo "$extend_bits$1"
+    if [ "${#1}" -le "$output_width" ]; then
+        extend_bit="$(get_extend_bit "$1")" &&
+        num="$(printf "%${output_width}s" "$1")" &&
+        echo "$num" | tr ' ' "$extend_bit"
     else
         echo "could not fit $1 into $output_width digits" >&2; return 1
     fi
 )
 
-# PARAMETERS:
-#   $1 - character
-#   $2 - count
-repeat_char() (
-    spaces="$(printf "%$2s")" &&
-    echo "$spaces" | tr ' ' "$1"
-)
+# $1 - canonical binary number
+get_extend_bit() {
+    if [ "$input_sign" = signed ]; then
+        echo "$1" | cut -c 1 # most significant bit
+    else
+        echo 0
+    fi
+}
 
 #-------------------------------------------------------------------------------
 # DECIMAL CONVERSION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - decimal number
-dec_to_bin() (
-    dec_num="$(canonical_dec "$1")" &&
-    case "$dec_num" in
-        -*) dec_num="$((-dec_num - 1))" &&
-            bin_num="$(echo "obase=2; $dec_num" | bc)" &&
-            bin_num="1$(echo "$bin_num" | tr 01 10)" ;; # invert bits
-        *)  bin_num="$(echo "obase=2; $dec_num" | bc)" &&
-            if [ "$input_sign" = signed ]; then
-                bin_num="0$bin_num"
-            fi ;;
-    esac &&
-    if [ "$output_width" ]; then
-        bin_num="$(extend_cbin "$bin_num")"
-    fi &&
-    echo "$bin_num"
+# $1 - decimal number
+dec_to_bcbin() (
+    dec_num="$(dec_to_bcdec "$1")" &&
+    echo "obase=2; $dec_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - decimal number
-dec_to_dec() (
-    num="$(canonical_dec "$1")" &&
-    if [ "$output_width" ]; then
-        num="$(extend_cdec "$num")"
-    fi &&
-    echo "$num"
+# $1 - decimal number
+dec_to_bcdec() {
+    echo "$1" | bc
+}
+
+# $1 - decimal number
+dec_to_bchex() (
+    dec_num="$(dec_to_bcdec "$1")" &&
+    echo "obase=16; $dec_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - decimal number
-dec_to_hex() (
-    dec_num="$(canonical_dec "$1")" &&
-    hex_num="$(echo "obase=16; ${dec_num#-}" | bc)" &&
-    if [ "$input_sign" = signed ]; then
-        case "$1" in
-            -*) target_msb=1 ;;
-            *) target_msb=0 ;;
-        esac
-        hex_num="$(adjust_hex_sign "$hex_num" "$target_msb")"
-    fi &&
-    if [ "$output_width" ]; then
-        hex_num="$(extend_chex "$hex_num")"
-    fi &&
-    echo "$hex_num"
-)
+# $1 - bc decimal number
+bcdec_to_canonical() {
+    echo "$1" # equal to input
+}
 
-# PARAMETERS:
-#   $1 - decimal number
-canonical_dec() (
-    case "$1" in
-        -*) sign=- ;;
-        *) sign= ;;
-    esac
-
-    num="$(echo "$1" | sed 's/^-\?0*//')" &&
-    if ! [ "$num" ]; then
-        num=0
-    fi &&
-    if [ "$num" != 0 ]; then
-        num="$sign$num"
-    fi &&
-    echo "$num"
-)
-
-# PARAMETERS:
-#   $1 - canonical decimal number
+# $1 - canonical decimal number
 extend_cdec() (
     abs_num="${1#-}"
-    extend_by="$((output_width - ${#abs_num}))" &&
-    if [ "$extend_by" -ge 0 ]; then
-        case "$1" in
-            -*) sign=- ;;
-            *) sign= ;;
-        esac
-        extend_zeros="$(repeat_char 0 "$extend_by")" &&
-        echo "$sign$extend_zeros$abs_num"
+    if [ "${#abs_num}" -le "$output_width" ]; then
+        abs_num="$(printf "%${output_width}s" "$abs_num")" &&
+        abs_num="$(echo "$abs_num" | tr ' ' 0)" &&
+        echo "${1%%[^-]*}$abs_num" # print also sign if it was present
     else
         echo "could not fit $1 into $output_width digits" >&2; return 1
     fi
@@ -404,60 +325,62 @@ extend_cdec() (
 # HEXADECIMAL CONVERSION
 #-------------------------------------------------------------------------------
 
-# PARAMETERS:
-#   $1 - hexadecimal number
-hex_to_bin() {
-    echo "hex_to_bin $1"
-}
-
-# PARAMETERS:
-#   $1 - hexadecimal number
-hex_to_dec() {
-    echo "hex_to_dec $1"
-}
-
-# PARAMETERS:
-#   $1 - hexadecimal number
-hex_to_hex() {
-    echo "hex_to_hex $1"
-}
-
-# PARAMETERS:
-#   $1 - canonical hexadecimal number
-#   $2 - target most significant bit
-adjust_hex_sign() (
-    left_digit="$(echo "$1" | cut -c 1)" &&
-    case "$2" in
-        0)  case "$left_digit" in [8-9] | [A-F]) # negative -> positive
-                left_digit="0$left_digit" ;;
-            esac ;;
-        1)  case "$left_digit" in # positive -> negative
-                1 | 3 | 7) left_digit=F ;;
-                2 | 6) left_digit=E ;;
-                4) left_digit=C ;;
-                5) left_digit=D ;;
-            esac ;;
-    esac &&
-    echo "$left_digit${1#?}"
+# $1 - hexadecimal number
+hex_to_bcbin() (
+    hex_num="$(hex_to_bchex "$1")" &&
+    echo "obase=2; ibase=16; $hex_num" | bc
 )
 
-# PARAMETERS:
-#   $1 - canonical hexadecimal number
+# $1 - hexadecimal number
+hex_to_bcdec() (
+    hex_num="$(hex_to_bchex "$1")" &&
+    echo "ibase=16; $hex_num" | bc
+)
+
+# $1 - hexadecimal number
+hex_to_bchex() (
+    num="$(echo "obase=16; ibase=16; $1" | bc)" &&
+    if [ "$input_sign" = signed ] && starts_with "$1" 89ABCDEF; then
+        num="$(echo "$num" | tr 0123456789ABCDEF FEDCBA9876543210)" && # invert
+        num="-$(echo "obase=16; ibase=16; $num + 1" | bc)"
+    fi &&
+    echo "$num"
+)
+
+# $1 - bc hexadecimal number
+bchex_to_canonical() (
+    num="$1"
+    if starts_with "$num" -; then
+        num="$(echo "obase=16; ibase=16; -($num) - 1" | bc)" &&
+        num="$(echo "$num" | tr 0123456789ABCDEF FEDCBA9876543210)" &&
+        if starts_with "$num" 01234567; then
+            num="F$num"
+        fi
+    elif [ "$input_sign" = signed ] && starts_with "$num" 89ABCDEF; then
+        num="0$num"
+    fi &&
+    echo "$num"
+)
+
+# $1 - canonical hexadecimal number
 extend_chex() (
-    extend_by="$((output_width - ${#1}))" &&
-    if [ "$extend_by" -ge 0 ]; then
-        extend_digit=0
-        if [ "$input_sign" = signed ]; then
-            case "$1" in [8-9]* | [A-F]*)
-                extend_digit=F ;;
-            esac
-        fi &&
-        extend_digits="$(repeat_char "$extend_digit" "$extend_by")" &&
-        echo "$extend_digits$1"
+    if [ "${#1}" -le "$output_width" ]; then
+        extend_xdigit="$(get_extend_xdigit "$1")" &&
+        num="$(printf "%${output_width}s" "$1")" &&
+        echo "$num" | tr ' ' "$extend_xdigit"
     else
         echo "could not fit $1 into $output_width digits" >&2; return 1
     fi
 )
+
+# $1 - canonical hexadecimal number
+get_extend_xdigit() {
+    if [ "$input_sign" = signed ] && starts_with "$1" 89ABCDEF; then
+        echo F
+    else
+        echo 0
+    fi
+}
 
 #-------------------------------------------------------------------------------
 # CALL MAIN
