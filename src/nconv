@@ -310,9 +310,16 @@ bcdec_to_canonical() {
 }
 
 # $1 - canonical decimal number
-extend_cdec() {
-    echo "extend_cdec $1"
-}
+extend_cdec() (
+    abs_num="${1#-}"
+    if [ "${#abs_num}" -le "$output_width" ]; then
+        abs_num="$(printf "%${output_width}s" "$abs_num")" &&
+        abs_num="$(echo "$abs_num" | tr ' ' 0)" &&
+        echo "${1%%[^-]*}$abs_num" # print also sign if it was present
+    else
+        echo "could not fit $1 into $output_width digits" >&2; return 1
+    fi
+)
 
 #-------------------------------------------------------------------------------
 # HEXADECIMAL CONVERSION
