@@ -265,25 +265,23 @@ bcbin_to_canonical() (
 
 # $1 - canonical binary number
 extend_cbin() (
-    extend_by="$((output_width - ${#1}))" &&
-    if [ "$extend_by" -ge 0 ]; then
-        extend_bit=0
-        if [ "$input_sign" = signed ]; then
-            extend_bit="$(echo "$1" | cut -c 1)" # most significant bit
-        fi &&
-        extend_bits="$(repeat_char "$extend_bit" "$extend_by")" &&
-        echo "$extend_bits$1"
+    if [ "${#1}" -le "$output_width" ]; then
+        extend_bit="$(get_extend_bit "$1")" &&
+        num="$(printf "%${output_width}s" "$1")" &&
+        echo "$num" | tr ' ' "$extend_bit"
     else
         echo "could not fit $1 into $output_width digits" >&2; return 1
     fi
 )
 
-# $1 - character
-# $2 - count
-repeat_char() (
-    spaces="$(printf "%$2s")" &&
-    echo "$spaces" | tr ' ' "$1"
-)
+# $1 - canonical binary number
+get_extend_bit() {
+    if [ "$input_sign" = signed ]; then
+        echo "$1" | cut -c 1 # most significant bit
+    else
+        echo 0
+    fi
+}
 
 #-------------------------------------------------------------------------------
 # DECIMAL CONVERSION
