@@ -363,8 +363,23 @@ bchex_to_canonical() (
 )
 
 # $1 - canonical hexadecimal number
-extend_chex() {
-    echo "extend_chex $1"
+extend_chex() (
+    if [ "${#1}" -le "$output_width" ]; then
+        extend_xdigit="$(get_extend_xdigit "$1")" &&
+        num="$(printf "%${output_width}s" "$1")" &&
+        echo "$num" | tr ' ' "$extend_xdigit"
+    else
+        echo "could not fit $1 into $output_width digits" >&2; return 1
+    fi
+)
+
+# $1 - canonical hexadecimal number
+get_extend_xdigit() {
+    if [ "$input_sign" = signed ] && starts_with "$1" 89ABCDEF; then
+        echo F
+    else
+        echo 0
+    fi
 }
 
 #-------------------------------------------------------------------------------
