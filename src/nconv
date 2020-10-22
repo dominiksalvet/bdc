@@ -80,13 +80,13 @@ process_opts() {
             H) output_radix=hex ;;
 
             W)  if ! [ "$OPTARG" -gt 0 ] 2>/dev/null; then
-                    echo "invalid output width $OPTARG" >&2; return 1
+                    echo "E1: invalid output width $OPTARG" >&2; return 1
                 fi
                 output_width="$OPTARG" ;;
 
             [0-9]) OPTIND="$((OPTIND - 1))" && break ;; # negative dec number
-            :) echo "option -$OPTARG requires an argument" >&2; return 1 ;;
-            ?) echo "invalid option -$OPTARG" >&2; return 1 ;;
+            :) echo "E2: option -$OPTARG requires an argument" >&2; return 1 ;;
+            ?) echo "E3: invalid option -$OPTARG" >&2; return 1 ;;
         esac || return
     done
 }
@@ -94,7 +94,7 @@ process_opts() {
 # $@ - numbers
 process_nums() (
     if [ "$#" -eq 0 ]; then
-        echo 'no number provided' >&2; return 1
+        echo 'E4: no number provided' >&2; return 1
     fi
 
     # missing conversion parameters are deduced from the first number
@@ -127,7 +127,7 @@ init_input_radix() {
         elif is_hex_num "$1"; then
             input_radix=hex;
         else
-            echo "invalid main number $1" >&2; return 1
+            echo "E5: invalid main number $1" >&2; return 1
         fi
     fi
 }
@@ -147,7 +147,7 @@ init_output_radix() {
         case "$input_radix" in
             bin | hex) output_radix=dec ;;
             dec) output_radix=bin ;;
-            *) echo "invalid input radix $input_radix" >&2; return 1
+            *) echo "E6: invalid input radix $input_radix" >&2; return 1
         esac
     fi
 }
@@ -175,11 +175,11 @@ is_hex_num() {
 convert_num() (
     case "$input_radix" in
         bin | dec | hex) ;;
-        *) echo "invalid input radix $input_radix" >&2; return 1 ;;
+        *) echo "E7: invalid input radix $input_radix" >&2; return 1 ;;
     esac &&
     case "$output_radix" in
         bin | dec | hex) ;;
-        *) echo "invalid output radix $output_radix" >&2; return 1 ;;
+        *) echo "E8: invalid output radix $output_radix" >&2; return 1 ;;
     esac &&
 
     check_"$input_radix" "$1" &&
@@ -194,17 +194,17 @@ convert_num() (
 # $1 - number
 check_bin() {
     if ! is_bin_num "$1"; then
-        echo "invalid binary number $1" >&2; return 1
+        echo "E9: invalid binary number $1" >&2; return 1
     fi
 }
 
 # $1 - number
 check_dec() {
     if ! is_dec_num "$1"; then
-        echo "invalid decimal number $1" >&2; return 1
+        echo "E10: invalid decimal number $1" >&2; return 1
     elif [ "$input_sign" = unsigned ]; then
         case "$1" in -*)
-            echo "invalid unsigned decimal number $1" >&2; return 1 ;;
+            echo "E11: invalid unsigned decimal number $1" >&2; return 1 ;;
         esac
     fi
 }
@@ -212,7 +212,7 @@ check_dec() {
 # $1 - number
 check_hex() {
     if ! is_hex_num "$1"; then
-        echo "invalid hexadecimal number $1" >&2; return 1
+        echo "E12: invalid hexadecimal number $1" >&2; return 1
     fi
 }
 
@@ -270,7 +270,7 @@ extend_cbin() (
         num="$(printf "%${output_width}s" "$1")" &&
         echo "$num" | tr ' ' "$extend_bit"
     else
-        echo "could not fit $1 into $output_width digits" >&2; return 1
+        echo "E13: could not fit $1 into $output_width digits" >&2; return 1
     fi
 )
 
@@ -317,7 +317,7 @@ extend_cdec() (
         abs_num="$(echo "$abs_num" | tr ' ' 0)" &&
         echo "${1%%[^-]*}$abs_num" # print also sign if it was present
     else
-        echo "could not fit $1 into $output_width digits" >&2; return 1
+        echo "E14: could not fit $1 into $output_width digits" >&2; return 1
     fi
 )
 
@@ -369,7 +369,7 @@ extend_chex() (
         num="$(printf "%${output_width}s" "$1")" &&
         echo "$num" | tr ' ' "$extend_xdigit"
     else
-        echo "could not fit $1 into $output_width digits" >&2; return 1
+        echo "E15: could not fit $1 into $output_width digits" >&2; return 1
     fi
 )
 

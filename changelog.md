@@ -12,6 +12,7 @@ The changes not yet present in any release are listed in this section.
 
 * Added decimal conversions.
 * Added hexadecimal conversions.
+* Error messages contain also a unique ID. No reuse allowed.
 
 ### Changed
 
