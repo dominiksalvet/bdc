@@ -12,6 +12,7 @@ The changes not yet present in any release are listed in this section.
 
 * When no number argument provided, nconv uses standard input.
 * Added support for lowercase hexadecimal numbers on input.
+* Added support for hexadecimal numbers with `0x` and `0X` prefixes.
 
 ### Fixed
 

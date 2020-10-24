@@ -172,7 +172,7 @@ is_dec_num() {
 
 # $1 - number
 is_hex_num() {
-    echo "$1" | grep -q '^[0-9A-Fa-f]\+$'
+    echo "$1" | grep -q '^\(0x\|0X\|\)[0-9A-Fa-f]\+$'
 }
 
 #-------------------------------------------------------------------------------
@@ -236,9 +236,10 @@ strip_dec() {
 }
 
 # $1 - hexadecimal number
-strip_hex() {
-    echo "$1" | tr abcdef ABCDEF
-}
+strip_hex() (
+    num="${1#0x}"
+    echo "${num#0X}" | tr abcdef ABCDEF
+)
 
 #-------------------------------------------------------------------------------
 # BINARY CONVERSION
