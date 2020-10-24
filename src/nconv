@@ -26,7 +26,7 @@ init_constants() {
 
 init_strings() {
     readonly HELP_MESSAGE='USAGE:
-  nconv [OPTION...] NUMBER...
+  nconv [OPTION...] [NUMBER...]
   nconv help | about
 
 OPTION:
@@ -60,8 +60,12 @@ process_args() (
         help) echo "$HELP_MESSAGE" ;;
         about) echo "$ABOUT_MESSAGE" ;;
         *)  process_opts "$@" &&
-            shift "$((OPTIND - 1))" && # shift to numbers
-            process_nums "$@" ;;
+            shift "$((OPTIND - 1))" && # shift to number arguments
+            if [ "$#" -eq 0 ]; then
+                process_stdin # read numbers from standard input
+            else
+                process_num_args "$@"
+            fi ;;
     esac
 )
 
@@ -91,18 +95,22 @@ process_opts() {
     done
 }
 
-# $@ - numbers
-process_nums() (
-    if [ "$#" -eq 0 ]; then
-        echo 'E4: no number provided' >&2; return 1
-    fi
+process_stdin() (
+    if IFS= read -r first_num; then
+        init_conversion "$first_num" && # deduce missing parameters
+        convert_num "$first_num" &&
 
-    # missing conversion parameters are deduced from the first number
+        while IFS= read -r num; do
+            convert_num "$num" || return
+        done
+    fi
+)
+
+# $@ - numbers
+process_num_args() (
     init_conversion "$1" &&
     for num in "$@"; do
-        result="$(convert_num "$num")" &&
-        # print result as a single line
-        echo "$result" | sed ':a; N; s/\\\n//; ba' || return
+        convert_num "$num" || return
     done
 )
 
@@ -188,7 +196,7 @@ convert_num() (
     if [ "$output_width" ]; then
         num="$(extend_c"$output_radix" "$num")"
     fi &&
-    echo "$num"
+    echo "$num" | sed ':a; N; s/\\\n//; ba' # print result as a single line
 )
 
 # $1 - number
