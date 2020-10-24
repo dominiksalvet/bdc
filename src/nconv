@@ -196,7 +196,7 @@ convert_num() (
     if [ "$output_width" ]; then
         num="$(extend_c"$output_radix" "$num")"
     fi &&
-    echo "$num" | sed ':a; N; s/\\\n//; ba' # print result as a single line
+    echo "$num"
 )
 
 # $1 - number
@@ -261,15 +261,20 @@ starts_with() {
 
 # $1 - bc binary number
 bcbin_to_canonical() (
-    if starts_with "$1" -; then
-        num="$(echo "obase=2; ibase=2; -($1) - 1" | bc)" &&
-        echo "0${num#0}" | tr 01 10
+    num="$1"
+    if starts_with "$num" -; then
+        num="$(echo "obase=2; ibase=2; -($num) - 1" | bc)" &&
+        num="$(echo "0${num#0}" | tr 01 10)"
     elif [ "$input_sign" = signed ]; then
-        echo "0${1#0}"
-    else
-        echo "$1"
-    fi
+        num="0${num#0}"
+    fi &&
+    single_bc_line "$num"
 )
+
+# $1 - bc number
+single_bc_line() {
+    echo "$1" | sed ':a; N; s/\\\n//; ba' # print result as a single line
+}
 
 # $1 - canonical binary number
 extend_cbin() (
@@ -314,7 +319,7 @@ dec_to_bchex() (
 
 # $1 - bc decimal number
 bcdec_to_canonical() {
-    echo "$1" # equal to input
+    single_bc_line "$1"
 }
 
 # $1 - canonical decimal number
@@ -367,7 +372,7 @@ bchex_to_canonical() (
     elif [ "$input_sign" = signed ] && starts_with "$num" 89ABCDEF; then
         num="0$num"
     fi &&
-    echo "$num"
+    single_bc_line "$num"
 )
 
 # $1 - canonical hexadecimal number

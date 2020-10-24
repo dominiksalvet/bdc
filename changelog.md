@@ -12,6 +12,10 @@ The changes not yet present in any release are listed in this section.
 
 * When no number argument provided, nconv uses standard input.
 
+### Fixed
+
+* Fix extending functions when `bc` uses its result line breaks (`\<newline>`).
+
 ## 0.3.0 (2020-10-22)
 
 ### Added
