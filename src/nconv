@@ -82,7 +82,6 @@ process_opts() {
             B) output_radix=bin ;;
             D) output_radix=dec ;;
             H) output_radix=hex ;;
-
             W)  if ! [ "$OPTARG" -gt 0 ] 2>/dev/null; then
                     echo "E1: invalid output width $OPTARG" >&2; return 1
                 fi
