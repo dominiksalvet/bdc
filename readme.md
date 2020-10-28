@@ -58,7 +58,63 @@ nconv -W <width> <number>
 
 ### Example
 
-Example content.
+To better imagine how nconv works, there are some examples below:
+
+* Convert a hexadecimal number to a binary number:
+
+```
+$ nconv -B face
+1111101011001110
+```
+
+* Make sure input is always hexadecimal even when smart conversion tells otherwise:
+
+```
+$ nconv -h -B 10
+10000
+```
+
+* Negative numbers are not a problem either:
+
+```
+$ nconv -5
+1011
+```
+
+* Let us extend it to a byte:
+
+```
+$ nconv -W 8 -5
+11111011
+```
+
+* What about to try something bigger?
+
+```
+$ nconv -W 8 -255
+E13: could not fit 100000001 into 8 digits
+```
+
+* Oops, but it would fit without the minus sign, wouldn't it?
+
+```
+$ nconv -W 8 255
+11111111
+```
+
+* Can I store this number into a signed byte variable? Nope.
+
+```
+$ nconv -W 8 -s 200
+E13: could not fit 011001000 into 8 digits
+```
+
+* What is this signed binary number in decimal?
+
+```
+$ nconv -s 10011001
+-103
+```
 
 ## Useful Resources
 
