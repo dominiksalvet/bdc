@@ -54,7 +54,7 @@ nconv -s/-u <number>
 nconv -W <width> <number>
 ```
 
-> Extend output to `<width>` digits. Respects signedness.
+> Extend output to `<width>` digits. It respects signedness.
 
 ### Example
 
