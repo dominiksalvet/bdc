@@ -24,13 +24,37 @@ gitpack install github.com/dominiksalvet/nconv
 
 ## Usage
 
-**Automatic** number conversion:
+**Smart** conversion:
 
 ```
 nconv <number>
 ```
 
 > Rules: bin → dec, dec → bin, hex → dec.
+
+**Manual base** conversion:
+
+```
+nconv -b/-d/-h -B/-D/-H <number>
+```
+
+> Input options are lowercase, output ones are uppercase.
+
+**Manual signedness** conversion:
+
+```
+nconv -s/-u <number>
+```
+
+> Input should be considered signed/unsigned.
+
+**Manual width** conversion:
+
+```
+nconv -W <width> <number>
+```
+
+> Extend output to `<width>` digits. Respects signedness.
 
 ### Example
 
