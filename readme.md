@@ -6,9 +6,13 @@
 
 > Binary, decimal, and hexadecimal converter.
 
-Nconv (number converter) is a simple and intuitive tool for converting among binary, decimal, and hexadecimal numbers. It was designed as a portable Shell script, so that it can be run almost everywhere.
+Nconv (number converter) is a simple and intuitive tool for converting among binary, decimal, and hexadecimal numbers. It was created with programmers in mind. Have a look at its features and convince yourself:
 
-Nconv is also smart. In most cases, you don't need to state which conversion you are interested in. Just type a number and nconv will perform the conversion automatically. How convenient.
+* Smart conversions based on the first number
+* Perfect support for two's complement
+* Numbers may have arbitrary length
+
+To ensure that nconv will work out of the box on as many systems as possible, it was designed as a very portable POSIX Shell script, which also means no need for compilation. Just install and use immediately.
 
 ## Install
 
