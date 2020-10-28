@@ -46,7 +46,7 @@ nconv -b/-d/-h -B/-D/-H <number>
 nconv -s/-u <number>
 ```
 
-> Input should be considered signed/unsigned.
+> Input is considered to be signed/unsigned.
 
 **Manual width** conversion:
 
