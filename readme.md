@@ -1,7 +1,7 @@
 # nconv
 
 <p align="center">
-    <img src="img/example.gif" alt="nconv example">
+    <img src="img/example.gif" alt="nconv example" height="400px">
 </p>
 
 [![CI status](https://github.com/dominiksalvet/nconv/workflows/CI/badge.svg)](https://github.com/dominiksalvet/nconv/actions)
