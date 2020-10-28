@@ -190,8 +190,7 @@ convert_num() (
     esac &&
 
     check_"$input_radix" "$1" &&
-    num="$(strip_$input_radix "$1")" &&
-    num="$(s"$input_radix"_to_bc"$output_radix" "$num")" &&
+    num="$("$input_radix"_to_bc"$output_radix" "$1")" &&
     num="$(bc"$output_radix"_to_canonical "$num")" &&
     if [ "$output_width" ]; then
         num="$(extend_c"$output_radix" "$num")"
@@ -224,27 +223,12 @@ check_hex() {
     fi
 }
 
-# $1 - binary number
-strip_bin() {
-    echo "$1"
-}
-
-# $1 - decimal number
-strip_dec() {
-    echo "$1"
-}
-
-# $1 - hexadecimal number
-strip_hex() {
-    echo "$1" | tr abcdef ABCDEF
-}
-
 #-------------------------------------------------------------------------------
 # BINARY CONVERSION
 #-------------------------------------------------------------------------------
 
-# $1 - stripped binary number
-sbin_to_bcbin() (
+# $1 - binary number
+bin_to_bcbin() (
     num="$(echo "obase=2; ibase=2; $1" | bc)" &&
     if [ "$input_sign" = signed ] && starts_with "$1" 1; then
         num="$(echo "$num" | tr 01 10)" && # invert bits
@@ -253,15 +237,15 @@ sbin_to_bcbin() (
     echo "$num"
 )
 
-# $1 - stripped binary number
-sbin_to_bcdec() (
-    bin_num="$(sbin_to_bcbin "$1")" &&
+# $1 - binary number
+bin_to_bcdec() (
+    bin_num="$(bin_to_bcbin "$1")" &&
     echo "ibase=2; $bin_num" | bc
 )
 
-# $1 - stripped binary number
-sbin_to_bchex() (
-    bin_num="$(sbin_to_bcbin "$1")" &&
+# $1 - binary number
+bin_to_bchex() (
+    bin_num="$(bin_to_bcbin "$1")" &&
     echo "obase=16; ibase=2; $bin_num" | bc
 )
 
@@ -315,20 +299,20 @@ get_extend_bit() {
 # DECIMAL CONVERSION
 #-------------------------------------------------------------------------------
 
-# $1 - stripped decimal number
-sdec_to_bcbin() (
-    dec_num="$(sdec_to_bcdec "$1")" &&
+# $1 - decimal number
+dec_to_bcbin() (
+    dec_num="$(dec_to_bcdec "$1")" &&
     echo "obase=2; $dec_num" | bc
 )
 
-# $1 - stripped decimal number
-sdec_to_bcdec() {
+# $1 - decimal number
+dec_to_bcdec() {
     echo "$1" | bc
 }
 
-# $1 - stripped decimal number
-sdec_to_bchex() (
-    dec_num="$(sdec_to_bcdec "$1")" &&
+# $1 - decimal number
+dec_to_bchex() (
+    dec_num="$(dec_to_bcdec "$1")" &&
     echo "obase=16; $dec_num" | bc
 )
 
@@ -353,21 +337,22 @@ extend_cdec() (
 # HEXADECIMAL CONVERSION
 #-------------------------------------------------------------------------------
 
-# $1 - stripped hexadecimal number
-shex_to_bcbin() (
-    hex_num="$(shex_to_bchex "$1")" &&
+# $1 - hexadecimal number
+hex_to_bcbin() (
+    hex_num="$(hex_to_bchex "$1")" &&
     echo "obase=2; ibase=16; $hex_num" | bc
 )
 
-# $1 - stripped hexadecimal number
-shex_to_bcdec() (
-    hex_num="$(shex_to_bchex "$1")" &&
+# $1 - hexadecimal number
+hex_to_bcdec() (
+    hex_num="$(hex_to_bchex "$1")" &&
     echo "ibase=16; $hex_num" | bc
 )
 
-# $1 - stripped hexadecimal number
-shex_to_bchex() (
-    num="$(echo "obase=16; ibase=16; $1" | bc)" &&
+# $1 - hexadecimal number
+hex_to_bchex() (
+    num="$(echo "$1" | tr abcdef ABCDEF)" && # to uppercase
+    num="$(echo "obase=16; ibase=16; $num" | bc)" &&
     if [ "$input_sign" = signed ] && starts_with "$1" 89ABCDEF; then
         num="$(echo "$num" | tr 0123456789ABCDEF FEDCBA9876543210)" && # invert
         num="-$(echo "obase=16; ibase=16; $num + 1" | bc)"
