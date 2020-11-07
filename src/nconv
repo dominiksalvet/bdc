@@ -161,18 +161,27 @@ init_output_radix() {
 
 # $1 - number
 is_bin_num() {
+    is_single_line "$1" &&
     echo "$1" | grep -q '^[01]\+$'
 }
 
 # $1 - number
 is_dec_num() {
+    is_single_line "$1" &&
     echo "$1" | grep -q '^-\?[0-9]\+$'
 }
 
 # $1 - number
 is_hex_num() {
+    is_single_line "$1" &&
     echo "$1" | grep -q '^[0-9A-Fa-f]\+$'
 }
+
+# $1 - string
+is_single_line() (
+    lineno="$(echo "$1" | wc -l)" &&
+    test "$lineno" -eq 1
+)
 
 #-------------------------------------------------------------------------------
 # CONVERSIONS
