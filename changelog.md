@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 The changes not yet present in any release are listed in this section.
 
+### Added
+
+* Print a message when running in an interactive mode.
+
 ### Fixed
 
 * Each number argument must be a single line argument.

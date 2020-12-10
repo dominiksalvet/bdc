@@ -95,6 +95,9 @@ process_opts() {
 }
 
 process_stdin() (
+    if [ -t 0 ]; then # stdin is open in a terminal (interactive mode)
+        echo 'enter numbers or press Ctrl+D to exit' >&2
+    fi &&
     if IFS= read -r first_num; then
         init_conversion "$first_num" && # deduce missing parameters
         convert_num "$first_num" &&
