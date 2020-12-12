@@ -12,6 +12,11 @@ The changes not yet present in any release are listed in this section.
 
 * Print a message when running in an interactive mode.
 
+### Changed
+
+* In default, interactive mode does automatic conversion for each number, not only for first.
+* In interactive mode, each number may contain leading and trailing space/tab characters.
+
 ### Fixed
 
 * Each number argument must be a single line argument.
@@ -46,7 +51,7 @@ The changes not yet present in any release are listed in this section.
 
 * The support for `help` and `about` has been added.
 * Added constraining options for input (`bdhsu`) and output (`BDHW`).
-* Added the main number analysis.
+* Added the first number analysis.
 * Added binary conversions.
 
 ### Changed

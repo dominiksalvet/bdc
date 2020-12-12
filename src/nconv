@@ -94,12 +94,27 @@ process_opts() {
     done
 }
 
-process_stdin() (
+process_stdin() {
     if [ -t 0 ]; then # stdin is open in a terminal (interactive mode)
-        echo 'enter numbers or press Ctrl+D to exit' >&2
-    fi &&
+        process_terminal_stdin
+    else
+        process_file_stdin # that includes also pipe input
+    fi
+}
+
+process_terminal_stdin() (
+    echo 'enter a number or press Ctrl+D to exit' >&2 &&
+    # terminal input has more relaxed behavior than other input
+    while IFS=' 	' read -r num; do
+        (   init_conversion "$num" && # deduce missing parameters
+            convert_num "$num"
+        ) || return
+    done
+)
+
+process_file_stdin() (
     if IFS= read -r first_num; then
-        init_conversion "$first_num" && # deduce missing parameters
+        init_conversion "$first_num" &&
         convert_num "$first_num" &&
 
         while IFS= read -r num; do
@@ -120,14 +135,14 @@ process_num_args() (
 # CONVERSION INITIALIZATION
 #-------------------------------------------------------------------------------
 
-# $1 - main number
+# $1 - number
 init_conversion() {
     init_input_radix "$1" &&
     init_input_sign "$1" &&
     init_output_radix
 }
 
-# $1 - main number
+# $1 - number
 init_input_radix() {
     if ! [ "$input_radix" ]; then
         if is_bin_num "$1"; then
@@ -137,12 +152,12 @@ init_input_radix() {
         elif is_hex_num "$1"; then
             input_radix=hex;
         else
-            echo "E5: invalid main number $1" >&2; return 1
+            echo "E5: invalid number $1" >&2; return 1
         fi
     fi
 }
 
-# $1 - main number
+# $1 - number
 init_input_sign() {
     if ! [ "$input_sign" ]; then
         case "$1" in
