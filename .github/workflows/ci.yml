@@ -17,4 +17,7 @@ jobs:
       run: shellcheck --version
 
     - name: Check source files
-      run: shellcheck src/*
+      run: shellcheck src/nconv
+
+    - name: Check install files
+      run: shellcheck .install/*

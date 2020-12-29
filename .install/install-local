@@ -1,0 +1,10 @@
+#!/bin/sh
+
+#-------------------------------------------------------------------------------
+# Copyright 2020 Dominik Salvet
+# https://github.com/dominiksalvet/nconv
+#-------------------------------------------------------------------------------
+
+echo 'copying files'
+mkdir -p "$HOME/.local/bin/" &&
+cp src/nconv "$HOME/.local/bin/"
