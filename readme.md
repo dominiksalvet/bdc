@@ -61,9 +61,9 @@ nconv -W <width> <number>
 
 > Extend output to `<width>` digits. It respects signedness.
 
-### Example
+### Examples
 
-To better imagine how nconv works, there are some examples below:
+To better imagine how nconv works, there are some examples below.
 
 * Convert a hexadecimal number to a binary number:
 
