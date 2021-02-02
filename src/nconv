@@ -192,7 +192,7 @@ is_dec_num() {
 # $1 - number
 is_hex_num() {
     is_single_line "$1" &&
-    echo "$1" | grep -qE '^[0-9A-Fa-f]+$'
+    echo "$1" | grep -qE '^(0[xX])?[0-9A-Fa-f]+$'
 }
 
 # $1 - string
@@ -378,7 +378,8 @@ hex_to_bcdec() (
 
 # $1 - hexadecimal number
 hex_to_bchex() (
-    num="$(echo "$1" | tr abcdef ABCDEF)" && # to uppercase
+    # remove 0x/0X prefix (if any) and change to uppercase
+    num="$(echo "${1#0[xX]}" | tr abcdef ABCDEF)" &&
     num="$(echo "obase=16; ibase=16; $num" | bc)" &&
     if [ "$input_sign" = signed ] && starts_with "$1" 89ABCDEF; then
         num="$(echo "$num" | tr 0123456789ABCDEF FEDCBA9876543210)" && # invert
