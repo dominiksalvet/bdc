@@ -22,6 +22,7 @@ The changes not yet present in any release are listed in this section.
 ### Fixed
 
 * Each number argument must be a single line argument.
+* Fix negative lowercase hexadecimal number detection when input is signed.
 
 ## 1.0.0 (2020-10-28)
 

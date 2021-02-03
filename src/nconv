@@ -259,7 +259,7 @@ bin_to_bcbin() (
     num="$(echo "obase=2; ibase=2; $1" | bc)" &&
     if [ "$input_sign" = signed ] && starts_with "$1" 1; then
         num="$(echo "$num" | tr 01 10)" && # invert bits
-        num="-$(echo "obase=2; ibase=2; $num + 1" | bc)"
+        num="-$(echo "obase=2; ibase=2; $num + 1" | bc)" # also add minus sign
     fi &&
     echo "$num"
 )
@@ -380,12 +380,12 @@ hex_to_bcdec() (
 hex_to_bchex() (
     # remove 0x/0X prefix (if any) and change to uppercase
     num="$(echo "${1#0[xX]}" | tr abcdef ABCDEF)" &&
-    num="$(echo "obase=16; ibase=16; $num" | bc)" &&
-    if [ "$input_sign" = signed ] && starts_with "$1" 89ABCDEF; then
-        num="$(echo "$num" | tr 0123456789ABCDEF FEDCBA9876543210)" && # invert
-        num="-$(echo "obase=16; ibase=16; $num + 1" | bc)"
+    bcnum="$(echo "obase=16; ibase=16; $num" | bc)" &&
+    if [ "$input_sign" = signed ] && starts_with "$num" 89ABCDEF; then
+        bcnum="$(echo "$bcnum" | tr 0123456789ABCDEF FEDCBA9876543210)" && # neg
+        bcnum="-$(echo "obase=16; ibase=16; $bcnum + 1" | bc)" # also add minus
     fi &&
-    echo "$num"
+    echo "$bcnum"
 )
 
 # $1 - bc hexadecimal number
