@@ -16,9 +16,8 @@ The changes not yet present in any release are listed in this section.
 
 ### Changed
 
-* In default, interactive mode does automatic conversion for each number, not only for first.
-* In interactive mode, each number may contain leading and trailing space/tab characters.
 * Adapt to new GitPack 1.0.0 installation format.
+* The interactive mode has been significantly differentiated from the file standard input.
 
 ### Fixed
 

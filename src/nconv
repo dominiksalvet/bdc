@@ -107,18 +107,28 @@ process_stdin() {
 }
 
 process_terminal_stdin() (
-    echo 'enter a number or press Ctrl+D to exit' >&2 &&
-    # terminal input has more relaxed behavior than other input
-    while IFS=' 	' read -r num; do
-        (   init_conversion "$num" && # deduce missing parameters
-            convert_num "$num"
-        ) || return
+    # terminal input has different handling than other input
+    echo 'enter nconv arguments or press Ctrl+D to exit' >&2 &&
+    set -f && # disable globbing
+
+    while IFS= read -r args; do
+        # shellcheck disable=SC2086
+        (   set -- $args && # use input line as positional parameters
+            process_opts "$@" && # options for this line
+            shift "$((OPTIND - 1))" &&
+            if [ "$#" -eq 1 ]; then
+                init_conversion "$1" &&
+                convert_num "$1"
+            elif [ "$#" -gt 1 ]; then
+                echo 'E16: use only one number argument per line' >&2; false
+            fi
+        ) # do not break from loop on fail
     done
 )
 
 process_file_stdin() (
     if IFS= read -r first_num; then
-        init_conversion "$first_num" &&
+        init_conversion "$first_num" && # deduce missing parameters
         convert_num "$first_num" &&
 
         while IFS= read -r num; do
