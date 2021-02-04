@@ -126,7 +126,7 @@ $ nconv -s 10011001
 * I want to be sure I convert right – show me extra details.
 
 ```
-# nconv -x 1000
+$ nconv -x 1000
 8
 unsigned bin -> dec
 input-digits 4
