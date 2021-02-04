@@ -12,6 +12,7 @@ The changes not yet present in any release are listed in this section.
 
 * Print a message when running in an interactive mode.
 * Add support for `0x` and `0X` prefixes in input hexadecimal numbers.
+* Added option `-x` to enable showing more conversion details.
 
 ### Changed
 

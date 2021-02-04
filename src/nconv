@@ -33,7 +33,8 @@ OPTION:
   -b/-d/-h  binary/decimal/hexadecimal input
   -s/-u     signed/unsigned input
   -B/-D/-H  binary/decimal/hexadecimal output
-  -W WIDTH  number of output digits'
+  -W WIDTH  number of output digits
+  -x        show extra conversion details'
 
     readonly ABOUT_MESSAGE="nconv $VERSION
 Binary, decimal, and hexadecimal converter.
@@ -48,6 +49,7 @@ init_opts() {
     input_sign= # signed, unsigned
     output_radix= # bin, dec, hex
     output_width= # a positive number
+    show_extra=false
 }
 
 #-------------------------------------------------------------------------------
@@ -71,7 +73,7 @@ process_args() (
 
 # $@ - nconv options
 process_opts() {
-    while getopts :bdhsuBDHW:0123456789 _opt; do
+    while getopts :bdhsuBDHW:x0123456789 _opt; do
         case "$_opt" in
             b) input_radix=bin ;;
             d) input_radix=dec ;;
@@ -86,6 +88,8 @@ process_opts() {
                     echo "E1: invalid output width $OPTARG" >&2; return 1
                 fi
                 output_width="$OPTARG" ;;
+
+            x) show_extra=true ;; # enable showing more details
 
             [0-9]) OPTIND="$((OPTIND - 1))" && break ;; # negative dec number
             :) echo "E2: option -$OPTARG requires an argument" >&2; return 1 ;;
@@ -207,14 +211,7 @@ is_single_line() (
 
 # $1 - number
 convert_num() (
-    case "$input_radix" in
-        bin | dec | hex) ;;
-        *) echo "E7: invalid input radix $input_radix" >&2; return 1 ;;
-    esac &&
-    case "$output_radix" in
-        bin | dec | hex) ;;
-        *) echo "E8: invalid output radix $output_radix" >&2; return 1 ;;
-    esac &&
+    check_radixes "$input_radix" "$output_radix" &&
 
     check_"$input_radix" "$1" &&
     num="$("$input_radix"_to_bc"$output_radix" "$1")" &&
@@ -222,8 +219,25 @@ convert_num() (
     if [ "$output_width" ]; then
         num="$(extend_c"$output_radix" "$num")"
     fi &&
-    echo "$num"
+    echo "$num" &&
+
+    if [ "$show_extra" = true ]; then
+        show_conversion_details "$1" "$num"
+    fi
 )
+
+# $1 - input radix
+# $2 - output radix
+check_radixes() {
+    case "$1" in
+        bin | dec | hex) ;;
+        *) echo "E7: invalid input radix $1" >&2; return 1 ;;
+    esac &&
+    case "$2" in
+        bin | dec | hex) ;;
+        *) echo "E8: invalid output radix $2" >&2; return 1 ;;
+    esac
+}
 
 # $1 - number
 check_bin() {
@@ -249,6 +263,19 @@ check_hex() {
         echo "E12: invalid hexadecimal number $1" >&2; return 1
     fi
 }
+
+# $1 - input number
+# $2 - output number
+show_conversion_details() (
+    echo "$input_sign $input_radix -> $output_radix" &&
+
+    in_digits="${1#-}" && # remove sign character
+    in_digits="${in_digits#0[xX]}" && # remove 0x/0X prefix
+    echo "input-digits ${#in_digits}" &&
+
+    out_digits="${2#-}" &&
+    echo "output-digits ${#out_digits}"
+)
 
 #-------------------------------------------------------------------------------
 # BINARY CONVERSION
@@ -309,7 +336,7 @@ extend_cbin() (
         num="$(printf "%${output_width}s" "$1")" &&
         echo "$num" | tr ' ' "$extend_bit"
     else
-        echo "E13: could not fit $1 into $output_width digits" >&2; return 1
+        echo "E13: result $1 needs at least ${#1} output digits" >&2; return 1
     fi
 )
 
@@ -356,7 +383,8 @@ extend_cdec() (
         abs_num="$(echo "$abs_num" | tr ' ' 0)" &&
         echo "${1%%[^-]*}$abs_num" # print also sign if it was present
     else
-        echo "E14: could not fit $1 into $output_width digits" >&2; return 1
+        echo "E14: result $1 needs at least ${#abs_num} output digits" >&2
+        return 1
     fi
 )
 
@@ -410,7 +438,7 @@ extend_chex() (
         num="$(printf "%${output_width}s" "$1")" &&
         echo "$num" | tr ' ' "$extend_xdigit"
     else
-        echo "E15: could not fit $1 into $output_width digits" >&2; return 1
+        echo "E15: result $1 needs at least ${#1} output digits" >&2; return 1
     fi
 )
 

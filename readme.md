@@ -61,6 +61,8 @@ nconv -W <width> <number>
 
 > Extend output to `<width>` digits. It respects signedness.
 
+**Interactive mode** will be launched when no number provided.
+
 ### Examples
 
 To better imagine how nconv works, there are some examples below.
@@ -119,6 +121,16 @@ E13: could not fit 011001000 into 8 digits
 ```
 $ nconv -s 10011001
 -103
+```
+
+* I want to be sure I convert right – show me extra details.
+
+```
+# nconv -x 1000
+8
+unsigned bin -> dec
+input-digits 4
+output-digits 1
 ```
 
 ## Useful Resources
