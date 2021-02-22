@@ -1,7 +1,3 @@
-**If you have GitPack 0.7.0 and lower, please visit [this discussion](https://github.com/dominiksalvet/gitpack/discussions/10).**
-
----
-
 # nconv
 
 <p align="center">
