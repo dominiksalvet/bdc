@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #-------------------------------------------------------------------------------
-# Copyright 2020-2021 Dominik Salvet
+# Copyright 2020-2022 Dominik Salvet
 # https://github.com/dominiksalvet/nconv
 #-------------------------------------------------------------------------------
 # This is a simple yet smart binary, decimal, and hexadecimal converter. This
@@ -37,9 +37,9 @@ OPTION:
   -x        show extra conversion details'
 
     readonly ABOUT_MESSAGE="nconv $VERSION
-Binary, decimal, and hexadecimal converter.
+Binary, decimal, and hexadecimal converter
 
-Copyright 2020-2021 Dominik Salvet
+Copyright 2020-2022 Dominik Salvet
 https://github.com/dominiksalvet/nconv"
 }
 
