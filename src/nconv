@@ -39,7 +39,7 @@ OPTION:
     readonly ABOUT_MESSAGE="nconv $VERSION
 Binary, decimal, and hexadecimal converter
 
-Copyright 2020-2022 Dominik Salvet
+Copyright 2020-2024 Dominik Salvet
 https://github.com/dominiksalvet/nconv"
 }
 
