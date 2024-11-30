@@ -86,18 +86,24 @@ process_opts() {
             D) output_radix=dec ;;
             H) output_radix=hex ;;
             W)  if ! [ "$OPTARG" -gt 0 ] 2>/dev/null; then
-                    echo "E1: invalid output width $OPTARG" >&2; return 1
+                    echoh "E1: invalid output width $OPTARG" >&2; return 1
                 fi
                 output_width="$OPTARG" ;;
 
             x) show_extra=true ;; # enable showing more details
 
             [0-9]) OPTIND="$_optind_prev" && break ;; # negative dec number
-            :) echo "E2: option -$OPTARG requires an argument" >&2; return 1 ;;
-            ?) echo "E3: invalid option -$OPTARG" >&2; return 1 ;;
+            :) echoh "E2: option -$OPTARG requires an argument" >&2; return 1 ;;
+            ?) echoh "E3: invalid option -$OPTARG" >&2; return 1 ;;
         esac || return
         _optind_prev="$OPTIND"
     done
+}
+
+# $@ - echo arguments
+echoh() {
+    echo "$@" &&
+    echo "try 'nconv help' for more information" # print also a hint
 }
 
 process_stdin() {

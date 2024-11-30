@@ -59,7 +59,7 @@ nconv -W <width> <number>
 
 > Extend output to `<width>` digits. It respects signedness.
 
-An **interactive mode** will be launched when no number provided.
+An **interactive mode** will be launched when no number provided. Use `nconv help` to see all options.
 
 ### Examples
 
